@@ -1,0 +1,40 @@
+; Thu Dec 07 17:04:45 CET 2017
+; 
+;+ (version "3.4.8")
+;+ (build "Build 629")
+
+([vivienda_Class10027] of  Vivienda
+
+	(Aire TRUE)
+	(Amueblada TRUE)
+	(Balcon TRUE)
+	(Cercano [vivienda_Class10029])
+	(CoordenadasX 5.0)
+	(CoordenadasY 10.0)
+	(Dormi_doble 1)
+	(Dormi_simple 2)
+	(Garaje TRUE)
+	(Precio_mensual 1000.0)
+	(Sol_man TRUE)
+	(Sol_tarde TRUE)
+	(Superficie 100.0)
+	(Tipo "unifamiliar"))
+
+([vivienda_Class10028] of  Bus
+
+	(CoordX 214.0)
+	(CoordY 111.1)
+	(Nombre_ser "Carrer x y"))
+
+([vivienda_Class10029] of  Metro
+
+	(CoordX 1341.0)
+	(CoordY 343.0)
+	(Nombre_ser "L1"))
+
+([vivienda_Class10030] of  colegio
+
+	(CoordX 50.0)
+	(CoordY 50.0)
+	(Nombre_ser "Benviure")
+	(Tipo_col Publico))
