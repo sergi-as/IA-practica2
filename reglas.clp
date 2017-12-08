@@ -1,3 +1,13 @@
+;;; Modulos
+(defmodule MAIN (export ?ALL))
+
+;;; Modulo de recopilacion de los datos del usuario
+(defmodule recopilacion-usuario
+	(import MAIN ?ALL)
+	(export ?ALL)
+)
+
+
 ;;; Funciones para preguntar
 ;;; Pregunta general
 (deffunction pregunta-general (?pregunta)
@@ -23,9 +33,15 @@
        then TRUE
        else FALSE)
 )
-
-
-
+;;; Templates
+(deftemplate MAIN::Usuario
+	(slot nombre (type STRING))
+	(slot sexo (type SYMBOL) (default desconocido))
+	(slot edad (type INTEGER) (default -1))
+	(slot familia (type SYMBOL) (default desconocido))
+  (slot tamFamilia (type INTEGER)(default -1))
+)
+;;; Reglas
 (defrule MAIN::initialRule "Regla inicial"
    	(declare (salience 10))
    	=>
@@ -35,4 +51,13 @@
      	(printout t crlf)
    	(printout t"¡Bienvenido! A continuacion se le formularan una serie de preguntas para poder recomendarle un piso adecuada a sus preferencias." crlf)
    	(printout t crlf)
+    (focus recopilacion-usuario)
 )
+
+(defrule recopilacion-usuario::preguntaNombre
+  (not Usuario)
+  =>
+  (printout t "Cual es su nombre?")
+  (bind ?name )
+
+  )
