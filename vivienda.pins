@@ -1,15 +1,61 @@
-; Thu Dec 07 17:00:17 CET 2017
+; Fri Dec 08 12:39:40 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
 
+([vivienda_Class10006] of  Coordenadas
+
+	(X 10.0)
+	(Y 10.0))
+
+([vivienda_Class10007] of  Coordenadas
+
+	(X 20.0)
+	(Y 20.0))
+
+([vivienda_Class10008] of  Coordenadas
+
+	(X 30.0)
+	(Y 30.0))
+
+([vivienda_Class10009] of  Coordenadas
+
+	(X 40.0)
+	(Y 40.0))
+
+([vivienda_Class10010] of  Coordenadas
+
+	(X 50.0)
+	(Y 50.0))
+
+([vivienda_Class10011] of  Vivienda
+
+	(Altura_piso primero)
+	(Amueblada TRUE)
+	(Coord_viv [vivienda_Class10008])
+	(Dormi_doble 3)
+	(Dormi_simple 2)
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Piscina TRUE)
+	(Precio_mensual 5000.0)
+	(Sol_tarde TRUE)
+	(Superficie 170.0)
+	(Terraza TRUE)
+	(Tipo duplex))
+
+([vivienda_Class10012] of  Coordenadas
+
+	(X 143.0)
+	(Y 134.0))
+
 ([vivienda_Class10027] of  Vivienda
 
 	(Aire TRUE)
+	(Altura_piso atico)
 	(Amueblada TRUE)
 	(Balcon TRUE)
-	(CoordenadasX 5.0)
-	(CoordenadasY 10.0)
+	(Coord_viv [vivienda_Class10010])
 	(Dormi_doble 1)
 	(Dormi_simple 2)
 	(Garaje TRUE)
@@ -17,23 +63,20 @@
 	(Sol_man TRUE)
 	(Sol_tarde TRUE)
 	(Superficie 100.0)
-	(Tipo "unifamiliar"))
+	(Tipo piso))
 
 ([vivienda_Class10028] of  Bus
 
-	(CoordX 214.0)
-	(CoordY 111.1)
+	(Coord_serv [vivienda_Class10006])
 	(Nombre_ser "Carrer x y"))
 
 ([vivienda_Class10029] of  Metro
 
-	(CoordX 1341.0)
-	(CoordY 343.0)
+	(Coord_serv [vivienda_Class10012])
 	(Nombre_ser "L1"))
 
 ([vivienda_Class10030] of  colegio
 
-	(CoordX 50.0)
-	(CoordY 50.0)
+	(Coord_serv [vivienda_Class10007])
 	(Nombre_ser "Benviure")
 	(Tipo_col Publico))
