@@ -1,4 +1,4 @@
-; Fri Dec 08 12:39:40 CET 2017
+; Fri Dec 08 13:03:24 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -20,11 +20,11 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[vivienda_ProjectKB_Class10089]
-		[vivienda_ProjectKB_Class10090]
-		[vivienda_ProjectKB_Class10091]
-		[vivienda_ProjectKB_Class10092]
-		[vivienda_ProjectKB_Class10093]))
+		[vivienda_ProjectKB_Class10113]
+		[vivienda_ProjectKB_Class10114]
+		[vivienda_ProjectKB_Class10115]
+		[vivienda_ProjectKB_Class10116]
+		[vivienda_ProjectKB_Class10117]))
 
 ([CLSES_TAB] of  Widget
 
@@ -76,9 +76,9 @@
 ([KB_722638_Class1] of  Map
 
 	(entries
-		[vivienda_ProjectKB_Class10094]
-		[vivienda_ProjectKB_Class10095]
-		[vivienda_ProjectKB_Class10096]))
+		[vivienda_ProjectKB_Class10118]
+		[vivienda_ProjectKB_Class10119]
+		[vivienda_ProjectKB_Class10120]))
 
 ([KB_722638_Class10] of  Property_List
 )
@@ -1006,46 +1006,88 @@
 	(name "vertical_stretcher")
 	(string_value ":DIRECT-TEMPLATE-SLOTS"))
 
-([vivienda_ProjectKB_Class10089] of  String
+([vivienda_ProjectKB_Class10097] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "vistas")
+	(property_list [vivienda_ProjectKB_Class10098])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 420))
+
+([vivienda_ProjectKB_Class10098] of  Property_List
+)
+
+([vivienda_ProjectKB_Class10101] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "servicio_cerca")
+	(property_list [vivienda_ProjectKB_Class10102])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 480))
+
+([vivienda_ProjectKB_Class10102] of  Property_List
+)
+
+([vivienda_ProjectKB_Class10107] of  Widget
+
+	(height 60)
+	(is_hidden FALSE)
+	(name "servicio_media")
+	(property_list [vivienda_ProjectKB_Class10108])
+	(widget_class_name "edu.stanford.smi.protege.widget.TextFieldWidget")
+	(width 200)
+	(x 0)
+	(y 540))
+
+([vivienda_ProjectKB_Class10108] of  Property_List
+)
+
+([vivienda_ProjectKB_Class10113] of  String
 
 	(name ":INSTANCE-ANNOTATION")
 	(string_value "%3AANNOTATION-TEXT"))
 
-([vivienda_ProjectKB_Class10090] of  String
+([vivienda_ProjectKB_Class10114] of  String
 
 	(name ":META-CLASS")
 	(string_value "%3ANAME"))
 
-([vivienda_ProjectKB_Class10091] of  String
+([vivienda_ProjectKB_Class10115] of  String
 
 	(name "Coordenadas")
 	(string_value "X{+}Y"))
 
-([vivienda_ProjectKB_Class10092] of  String
+([vivienda_ProjectKB_Class10116] of  String
 
 	(name ":PAL-CONSTRAINT")
 	(string_value "%3APAL-NAME"))
 
-([vivienda_ProjectKB_Class10093] of  String
+([vivienda_ProjectKB_Class10117] of  String
 
 	(name "Vivienda")
 	(string_value "Precio_mensual"))
 
-([vivienda_ProjectKB_Class10094] of  Map_Entry
+([vivienda_ProjectKB_Class10118] of  Map_Entry
 
 	(key "suppress_instance_counting")
 	(key_class "java.lang.String")
 	(value "false")
 	(value_class "java.lang.String"))
 
-([vivienda_ProjectKB_Class10095] of  Map_Entry
+([vivienda_ProjectKB_Class10119] of  Map_Entry
 
 	(key "change_tracking_active")
 	(key_class "java.lang.String")
 	(value "false")
 	(value_class "java.lang.String"))
 
-([vivienda_ProjectKB_Class10096] of  Map_Entry
+([vivienda_ProjectKB_Class10120] of  Map_Entry
 
 	(key "add_name_on_instance_form")
 	(key_class "java.lang.String")

@@ -1,4 +1,4 @@
-; Fri Dec 08 12:39:40 CET 2017
+; Fri Dec 08 13:03:24 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -110,6 +110,16 @@
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot vistas
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot servicio_cerca
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot CoordenadasY
 		(type FLOAT)
 ;+		(cardinality 0 1)
@@ -119,9 +129,14 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot servicio_media
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Coord_viv
 		(type INSTANCE)
-;+		(allowed-classes)
+;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot Dormitorios
@@ -167,6 +182,11 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot servicio_media
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Dormi_doble
 		(type INTEGER)
 ;+		(cardinality 0 1)
@@ -176,6 +196,11 @@
 		(allowed-values piso duplex familiar)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot vistas
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Sol_man
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
@@ -183,7 +208,7 @@
 		(create-accessor read-write))
 	(single-slot Coord_viv
 		(type INSTANCE)
-;+		(allowed-classes)
+;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Precio_mensual
@@ -197,6 +222,11 @@
 	(single-slot Aire
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot servicio_cerca
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Electrodomesticos

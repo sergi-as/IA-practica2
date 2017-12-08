@@ -1,4 +1,4 @@
-; Thu Dec 07 17:04:45 CET 2017
+; Fri Dec 08 13:01:23 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -21,11 +21,11 @@
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Superficie
+	(single-slot Precio_mensual
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Precio_mensual
+	(single-slot Superficie
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
@@ -33,17 +33,21 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Cercano
-		(type INSTANCE)
-;+		(allowed-classes Servicio)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
 	(single-slot Nombre
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot Y
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Tipo
-		(type STRING)
+		(type SYMBOL)
+		(allowed-values piso duplex familiar)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot X
+		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot CoordenadasX
@@ -74,7 +78,8 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Altura_piso
-		(type STRING)
+		(type SYMBOL)
+		(allowed-values planta_baja entresuelo primero segundo tercero cuarto quinto sexto septimo octavo noveno atico)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Sol_tarde
@@ -91,6 +96,11 @@
 		(allowed-values Publico Privado Concertado)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot Coord_serv
+		(type INSTANCE)
+;+		(allowed-classes Coordenadas)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Amueblada
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
@@ -100,6 +110,16 @@
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot vistas
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot servicio_cerca
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot CoordenadasY
 		(type FLOAT)
 ;+		(cardinality 0 1)
@@ -107,6 +127,16 @@
 	(single-slot Terraza
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot servicio_media
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Coord_viv
+		(type INSTANCE)
+;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot Dormitorios
@@ -132,12 +162,12 @@
 (defclass Vivienda
 	(is-a USER)
 	(role concrete)
-	(single-slot Piscina
+	(single-slot Sol_tarde
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Sol_tarde
+	(single-slot Piscina
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
@@ -152,12 +182,23 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Tipo
-		(type STRING)
+	(single-slot servicio_media
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Dormi_doble
 		(type INTEGER)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Tipo
+		(type SYMBOL)
+		(allowed-values piso duplex familiar)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot vistas
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Sol_man
@@ -165,11 +206,16 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Superficie
-		(type FLOAT)
+	(single-slot Coord_viv
+		(type INSTANCE)
+;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Precio_mensual
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Superficie
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
@@ -178,11 +224,7 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot CoordenadasX
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot Cercano
+	(single-slot servicio_cerca
 		(type INSTANCE)
 ;+		(allowed-classes Servicio)
 ;+		(cardinality 0 1)
@@ -197,22 +239,18 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot Dormi_simple
+		(type INTEGER)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Calefaccion
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Dormi_simple
-		(type INTEGER)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
 	(single-slot Garaje
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot CoordenadasY
-		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Mascotas
@@ -221,7 +259,8 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Altura_piso
-		(type STRING)
+		(type SYMBOL)
+		(allowed-values planta_baja entresuelo primero segundo tercero cuarto quinto sexto septimo octavo noveno atico)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
@@ -236,12 +275,9 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot CoordX
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot CoordY
-		(type FLOAT)
+	(single-slot Coord_serv
+		(type INSTANCE)
+;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
@@ -263,5 +299,17 @@
 	(single-slot Tipo_col
 		(type SYMBOL)
 		(allowed-values Publico Privado Concertado)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass Coordenadas
+	(is-a USER)
+	(role concrete)
+	(single-slot Y
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot X
+		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
