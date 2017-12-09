@@ -49,39 +49,8 @@
 	 )
 
 
-	 ;;; Funcion para hacer pregunta con muchas opciones
-	 (deffunction MAIN::pregunta-opciones (?pregunta $?valores-posibles)
-	     (bind ?linea (format nil "%s" ?pregunta))
-	     (printout t ?linea crlf)
-	     (progn$ (?var ?valores-posibles)
-	             (bind ?linea (format nil "  %d. %s" ?var-index ?var))
-	             (printout t ?linea crlf)
-	     )
-	     (bind ?respuesta (pregunta-numerica "Escoge una opcion:" 1 (length$ ?valores-posibles)))
-	 	?respuesta
-	 )
 
-	 ;;; Funcion para hacer una pregunta general con una serie de respuestas admitidas
-	 (deffunction MAIN::pregunta-opciones2 (?question $?allowed-values)
-	    (format t "%s "?question)
-	    (progn$ (?curr-value $?allowed-values)
-	 		(format t "[%s]" ?curr-value)
-	 	)
-	    (printout t ": ")
-	    (bind ?answer (read))
-	    (if (lexemep ?answer)
-	        then (bind ?answer (lowcase ?answer)))
-	    (while (not (member ?answer ?allowed-values)) do
-	       (format t "%s "?question)
-	 	  (progn$ (?curr-value $?allowed-values)
-	 		(format t "[%s]" ?curr-value)
-	 	  )
-	 	  (printout t ": ")
-	       (bind ?answer (read))
-	       (if (lexemep ?answer)
-	           then (bind ?answer (lowcase ?answer))))
-	    ?answer
-	 )
+
 
 	 ;;; Funcion para hacer una pregunta multi-respuesta con indices
 	 (deffunction MAIN::pregunta-multirespuesta (?pregunta $?valores-posibles)
@@ -107,6 +76,7 @@
 	     ;(if (member$ 0 ?lista) then (bind ?lista (create$ 0)))
 	     ?lista
 	 )
+
 	 ;;; Funcion para hacer pregunta con indice de respuestas posibles
 	 (deffunction MAIN::pregunta-indice (?pregunta $?valores-posibles)
 	     (bind ?linea (format nil "%s" ?pregunta))
@@ -119,10 +89,7 @@
 	 	?respuesta
 	 )
 
-(deffunction MAIN::euclidean (?x ?y ?m ?n)
-	(bind ?res (sqrt (+ (**(- ?x ?m) 2) (**(- ?y ?n) 2) )))
-	?res
-)
+
 
 ;;; Funcion para hacer una pregunta de tipo si/no
 (deffunction MAIN::pregunta-si-no (?question)
@@ -131,20 +98,25 @@
        then TRUE
        else FALSE)
 )
+
+(deffunction MAIN::euclidean (?x ?y ?m ?n)
+	(bind ?res (sqrt (+ (**(- ?x ?m) 2) (**(- ?y ?n) 2) )))
+	?res
+)
 ;;; Templates
 (deftemplate MAIN::Usuario
 	(slot nombre (type STRING))
-	(slot sexo (type SYMBOL)(allowed-symbols masculino femenino)(default desconocido))
+	(slot sexo (type SYMBOL)(allowed-symbols masculino femenino desconocido)(default desconocido))
 	(slot edad (type INTEGER)(default -1))
 	;;;Falta poner los tipos que puede incluir el SYMBOL
-	(slot familia (type SYMBOL)(allowed-symbols  )(default desconocido))
+	(slot familia (type SYMBOL)(default desconocido))
   (slot tamFamilia (type INTEGER)(default -1))
 	(slot trabaja_estudia_ciudad (type SYMBOL)(allowed-symbols si no)(default si))
 	(slot posee_coche (type SYMBOL)(allowed-symbols si no)(default no))
 )
 (deftemplate MAIN::preferencias_usuario
 	(slot precio_maximo (type INTEGER)(default -1))
-	(slot precio_estricto (type SYMBOL)(allowed-symbols si no)(default no))
+	(slot precio_estricto (type SYMBOL)(allowed-values FALSE TRUE)(default FALSE))
 	(slot num_dormitorios (type INTEGER)(default -1))
 	(slot tam_dormitorios (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
@@ -223,10 +195,10 @@
 
 (defrule recopilacion-usuario::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
 	?g <- (preferencias_usuario (precio_estricto ?precio_estricto))
-	(test (< ?precio_estricto 0))
+	(test (eq ?precio_estricto FALSE))
 	=>
-	(bind ?precio_maximo (pregunta-numerica "¿Cual es el precio maximo que quiere gastar? " 1 999999999))
-	(modify ?g (precio_maximo ?precio_maximo))
+	(bind ?precio_maximo (pregunta-si-no "¿El precio es estrico? "))
+	(modify ?g (precio_estricto ?precio_estricto))
 )
 
 (defrule recopilacion-usuario::establecer-num_dormitorios "Establece el numero de dormitorios deseado por el usuario"
@@ -255,8 +227,8 @@
 
 ;Nose como hacerlo con lo de los symbols
 (defrule recopilacion-usuario::establecer-sexo "Establece el sexo del usuario"
-?g <- (preferencias_usuario (sexo ?sexo))
-(test (< ?sexo 0)) ;nose que probar
+?g <- (Usuario (sexo ?sexo))
+(test (eq ?sexo desconocido))
 =>
 (bind ?formatos (create$ "masculino" "femenino"))
 (bind ?sexo (pregunta-indice "Cual es tu sexo?" ?formatos))
