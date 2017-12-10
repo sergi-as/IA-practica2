@@ -111,10 +111,9 @@
 	(slot edad (type INTEGER)(default -1))
 	;tipologia del solicitante: familia,pareja o gruppo
 	(slot tipo (type SYMBOL)(default desconocido))
-	;;;Falta poner los tipos que puede incluir el SYMBOL
   (slot tam_familia_grupo (type INTEGER)(default -1))
 	(slot trabaja_estudia_ciudad (type SYMBOL)(default desconocido))
-	(slot posee_coche (type SYMBOL)(default desconocido))
+	(slot posee_vehiculo (type SYMBOL)(default desconocido))
 )
 (deftemplate MAIN::preferencias_usuario
 	(slot precio_maximo (type INTEGER)(default -1))
@@ -167,7 +166,7 @@
 (defrule recopilacion-usuario::preguntaNombre "Establece el nombre del usuario"
   (not (Usuario))
   =>
-  (bind ?name (pregunta-general "Cual es su nombre?"))
+  (bind ?name (pregunta-general "Cual es su nombre? "))
 	(assert (Usuario (nombre ?name)))
   )
 
@@ -184,25 +183,56 @@
 	?g <- (Usuario (sexo ?sexo))
 	(test (eq ?sexo desconocido))
 	=>
-	(bind ?sexo (pregunta-opciones "Cual es tu sexo? (hombre,mujer)"  hombre mujer ))
+	(bind ?sexo (pregunta-opciones "Cual es tu sexo? (hombre o mujer) "  hombre mujer ))
 	(modify ?g (sexo ?sexo))
 )
 
 (defrule recopilacion-usuario::establecer-tipo "establece la tipologia de la familia"
-	?t <-(Usuario (tipo ?tipo))
+	?g <-(Usuario (tipo ?tipo))
 	(test (eq ?tipo desconocido))
 	=>
-	(bind ?i (pregunta-indice "De que tipo es el grupo para el que busca piso" (create$ "Pareja" "Familia" "Grupo" "Individuo")))
-
+	(bind ?i (pregunta-indice "De que tipo es el grupo para el que busca piso " (create$ "Pareja" "Familia" "Grupo" "Individuo")))
+	(printout t "valor elegido " ?i crlf)
+	(if (eq ?i 1)then
+		(modify ?g (tipo pareja) (tam_familia_grupo 2))
+	)
+	else (if (eq ?i 2)then
+		(modify ?g (tipo familia))
+	)
+	else (if (eq ?i 3)then
+		(modify ?g (tipo grupo))
+	)
+	else (if (eq ?i 4)then
+		(modify ?g (tipo individuo) (tam_familia_grupo 1))
+	)
 )
+
+
 
 (defrule recopilacion-usuario::establecer-tam_familia_grupo "Establece el tamanyo de la familia del usuario"
 	?g <- (Usuario (tam_familia_grupo ?tam_familia_grupo))
 	(test (< ?tam_familia_grupo 0))
 	=>
-	(bind ?tam_familia_grupo (pregunta-numerica "¿Cual es el tamanyo de su familia? (incluyendose a usted) " 1 50))
+	(bind ?tam_familia_grupo (pregunta-numerica "¿Cual es el tamanyo de su familia o grupo ? (incluyendose a usted) " 1 50))
 	(modify ?g (tam_familia_grupo ?tam_familia_grupo))
 )
+
+(defrule recopilacion-usuario::establecer-ocupacion "Establece si el usuario estudia o trabaja"
+	?g <- (Usuario (trabaja_estudia_ciudad ?t))
+	(test (eq ?t desconocido))
+	=>
+	(bind ?t (pregunta-si-no "Estudia y/o trabaja en esta ciudad? " ))
+	(modify ?g (trabaja_estudia_ciudad ?t))
+)
+
+(defrule recopilacion-usuario::establecer-vehiculo "Establece si el usuario dispone de vehiculo"
+	?g <- (Usuario (posee_vehiculo ?v))
+	(test (eq ?v desconocido))
+	=>
+	(bind ?v (pregunta-si-no "Dispone de vehiculo propio? " ))
+	(modify ?g (posee_vehiculo ?v))
+)
+
 
 (defrule recopilacion-usuario::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
 	?g <- (preferencias_usuario (precio_maximo ?precio_maximo))
