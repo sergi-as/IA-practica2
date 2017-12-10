@@ -243,7 +243,7 @@
 	?g <- (preferencias_usuario (precio_estricto ?precio_estricto))
 	(test (eq ?precio_estricto desconocido))
 	=>
-	(bind ?precio_maximo (pregunta-si-no "¿El precio es estrico? "))
+	(bind ?precio_estricto (pregunta-si-no "¿El precio es estricto? "))
 	(modify ?g (precio_estricto ?precio_estricto))
 )
 
