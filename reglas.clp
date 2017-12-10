@@ -6,11 +6,16 @@
 	(import MAIN ?ALL)
 	(export ?ALL)
 )
+(defmodule recopilacion-preferencias
+	(import MAIN ?ALL)
+	(import recopilacion-usuario deftemplate ?ALL)
+	(export ?ALL)
+)
 
 
 ;;; Funciones para preguntar
 ;;; Pregunta general
-(deffunction pregunta-general (?pregunta)
+(deffunction MAIN::pregunta-general (?pregunta)
 	(format t "%s" ?pregunta)
 	(bind ?respuesta (read))
 	?respuesta
@@ -47,10 +52,6 @@
 	 	)
 	 	?respuesta
 	 )
-
-
-
-
 
 	 ;;; Funcion para hacer una pregunta multi-respuesta con indices
 	 (deffunction MAIN::pregunta-multirespuesta (?pregunta $?valores-posibles)
@@ -106,22 +107,22 @@
 ;;; Templates
 (deftemplate MAIN::Usuario
 	(slot nombre (type STRING))
-	(slot sexo (type SYMBOL)(allowed-symbols masculino femenino desconocido)(default desconocido))
+	(slot sexo (type SYMBOL)(default desconocido))
 	(slot edad (type INTEGER)(default -1))
+	;tipologia del solicitante: familia,pareja o gruppo
+	(slot tipo (type SYMBOL)(default desconocido))
 	;;;Falta poner los tipos que puede incluir el SYMBOL
-	(slot familia (type SYMBOL)(default desconocido))
-  (slot tamFamilia (type INTEGER)(default -1))
-	(slot trabaja_estudia_ciudad (type SYMBOL)(allowed-symbols si no)(default si))
-	(slot posee_coche (type SYMBOL)(allowed-symbols si no)(default no))
+  (slot tam_familia_grupo (type INTEGER)(default -1))
+	(slot trabaja_estudia_ciudad (type SYMBOL)(default desconocido))
+	(slot posee_coche (type SYMBOL)(default desconocido))
 )
 (deftemplate MAIN::preferencias_usuario
 	(slot precio_maximo (type INTEGER)(default -1))
-	(slot precio_estricto (type SYMBOL)(allowed-values FALSE TRUE)(default FALSE))
-	(slot num_dormitorios (type INTEGER)(default -1))
-	(slot tam_dormitorios (type INTEGER)(default -1))
+	(slot precio_estricto (type SYMBOL)(default desconocido))
+	(slot num_dormitorios_dobles (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
 	;;;Restricción especíﬁca o preferencia sobre la distancia a algún tipo de servicio(colegios cerca,transporte público cerca, ...)
-	(slot pref_transp_publico (type SYMBOL)(allowed-symbols si no)(default no))
+	(slot pref_transp_publico (type SYMBOL)(default desconocido))
 )
 ;;; Reglas
 (defrule MAIN::initialRule "Regla inicial"
@@ -162,6 +163,7 @@
 		(printout t "por ejemplo,el servicio en la posicion 1 " (send (nth$ 1  $?servicios2)  get-Nombre_ser)  crlf)
 	)
 )
+
 (defrule recopilacion-usuario::preguntaNombre "Establece el nombre del usuario"
   (not (Usuario))
   =>
@@ -177,12 +179,29 @@
 	(modify ?g (edad ?edad))
 )
 
-(defrule recopilacion-usuario::establecer-tamFamilia "Establece el tamanyo de la familia del usuario"
-	?g <- (Usuario (tamFamilia ?tamFamilia))
-	(test (< ?tamFamilia 0))
+;Nose como hacerlo con lo de los symbols
+(defrule recopilacion-usuario::establecer-sexo "Establece el sexo del usuario"
+	?g <- (Usuario (sexo ?sexo))
+	(test (eq ?sexo desconocido))
 	=>
-	(bind ?tamFamilia (pregunta-numerica "¿Cual es el tamanyo de su familia? " 1 50))
-	(modify ?g (tamFamilia ?tamFamilia))
+	(bind ?sexo (pregunta-opciones "Cual es tu sexo? (hombre,mujer)"  hombre mujer ))
+	(modify ?g (sexo ?sexo))
+)
+
+(defrule recopilacion-usuario::establecer-tipo "establece la tipologia de la familia"
+	?t <-(Usuario (tipo ?tipo))
+	(test (eq ?tipo desconocido))
+	=>
+	(bind ?i (pregunta-indice "De que tipo es el grupo para el que busca piso" (create$ "Pareja" "Familia" "Grupo" "Individuo")))
+
+)
+
+(defrule recopilacion-usuario::establecer-tam_familia_grupo "Establece el tamanyo de la familia del usuario"
+	?g <- (Usuario (tam_familia_grupo ?tam_familia_grupo))
+	(test (< ?tam_familia_grupo 0))
+	=>
+	(bind ?tam_familia_grupo (pregunta-numerica "¿Cual es el tamanyo de su familia? (incluyendose a usted) " 1 50))
+	(modify ?g (tam_familia_grupo ?tam_familia_grupo))
 )
 
 (defrule recopilacion-usuario::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
@@ -195,27 +214,27 @@
 
 (defrule recopilacion-usuario::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
 	?g <- (preferencias_usuario (precio_estricto ?precio_estricto))
-	(test (eq ?precio_estricto FALSE))
+	(test (eq ?precio_estricto desconocido))
 	=>
 	(bind ?precio_maximo (pregunta-si-no "¿El precio es estrico? "))
 	(modify ?g (precio_estricto ?precio_estricto))
 )
 
-(defrule recopilacion-usuario::establecer-num_dormitorios "Establece el numero de dormitorios deseado por el usuario"
-	?g <- (preferencias_usuario (num_dormitorios ?num_dormitorios))
-	(test (< ?num_dormitorios 0))
-	=>
-	(bind ?num_dormitorios (pregunta-numerica "¿Cual es el numero de dormitorios deseado? " 1 20))
-	(modify ?g (num_dormitorios ?num_dormitorios))
-)
+;(defrule recopilacion-usuario::establecer-num_dormitorios "Establece el numero de dormitorios deseado por el usuario"
+;	?g <- (preferencias_usuario (num_dormitorios ?num_dormitorios))
+;	(test (< ?num_dormitorios 0))
+;	=>
+;	(bind ?num_dormitorios (pregunta-numerica "¿Cual es el numero de dormitorios deseado? " 1 20))
+;	(modify ?g (num_dormitorios ?num_dormitorios))
+;)
 
-(defrule recopilacion-usuario::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
-	?g <- (preferencias_usuario (tam_dormitorios ?tam_dormitorios))
-	(test (< ?tam_dormitorios 0))
-	=>
-	(bind ?tam_dormitorios (pregunta-numerica "¿Cual es el tamanyo de los dormitorios deseado? " 1 20))
-	(modify ?g (tam_dormitorios ?tam_dormitorios))
-)
+;(defrule recopilacion-usuario::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
+;	?g <- (preferencias_usuario (tam_dormitorios ?tam_dormitorios))
+;	(test (< ?tam_dormitorios 0))
+;	=>
+;	(bind ?tam_dormitorios (pregunta-numerica "¿Cual es el tamanyo de los dormitorios deseado? " 1 20))
+;	(modify ?g (tam_dormitorios ?tam_dormitorios))
+;)
 
 (defrule recopilacion-usuario::establecer-precio_minimo "Establece el precio minimo a partir del cual el usuario piensa que la vivienda es adecuada"
 	?g <- (preferencias_usuario (precio_minimo ?precio_minimo))
@@ -223,14 +242,4 @@
 	=>
 	(bind ?precio_minimo (pregunta-numerica "¿Cual es el precio minimo a gastar? " 1 999999999))
 	(modify ?g (precio_minimo ?precio_minimo))
-)
-
-;Nose como hacerlo con lo de los symbols
-(defrule recopilacion-usuario::establecer-sexo "Establece el sexo del usuario"
-?g <- (Usuario (sexo ?sexo))
-(test (eq ?sexo desconocido))
-=>
-(bind ?formatos (create$ "masculino" "femenino"))
-(bind ?sexo (pregunta-indice "Cual es tu sexo?" ?formatos))
-(modify ?g (sexo ?sexo))
 )
