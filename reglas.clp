@@ -11,6 +11,13 @@
 	(import recopilacion-usuario deftemplate ?ALL)
 	(export ?ALL)
 )
+(defmodule procesado
+	(import MAIN ?ALL)
+	(import recopilacion-usuario deftemplate ?ALL)
+	(import recopilacion-preferencias deftemplate ?ALL)
+	(export ?ALL)
+)
+
 
 
 ;;; Funciones para preguntar
@@ -112,8 +119,10 @@
 	;tipologia del solicitante: familia,pareja o gruppo
 	(slot tipo (type SYMBOL)(default desconocido))
   (slot tam_familia_grupo (type INTEGER)(default -1))
-	(slot trabaja_estudia_ciudad (type SYMBOL)(default desconocido))
 	(slot posee_vehiculo (type SYMBOL)(default desconocido))
+	;;coordenadas
+	(slot coorX (type INTEGER) (default -1))
+	(slot coorY (type INTEGER) (default -1))
 )
 (deftemplate MAIN::preferencias_usuario
 	(slot precio_maximo (type INTEGER)(default -1))
@@ -121,7 +130,6 @@
 	(slot num_dormitorios_dobles (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
 	(multislot distancia_servicio (type SYMBOL))
-	(slot pref_transp_publico (type SYMBOL)(default desconocido))
 )
 ;;; Reglas
 (defrule MAIN::initialRule "Regla inicial"
@@ -148,7 +156,7 @@
 	(bind ?euc (euclidean ?x ?y ?m ?n))
 	(bind $?scer (send ?viv get-servicio_cerca))
 	(bind $?smed (send ?viv get-servicio_media))
-	(printout t "encontrada pareja vivienda " ?i " servicio " ?nser " distancia : " ?euc crlf )
+	;;(printout t "encontrada pareja vivienda " ?i " servicio " ?nser " distancia : " ?euc crlf )
 	(if (<= ?euc 500) then
 		(send ?viv put-servicio_cerca $?scer ?ser)
 	)
@@ -157,10 +165,10 @@
 	)
 	;para mostrar los servicios cerca ;;;;;; p 27 como iterar multislot
 	(bind $?servicios2 (send ?viv get-servicio_cerca))
-	(printout t "servicios actuales " (length$ $?servicios2) crlf)
-	(if (>=(length$ $?servicios2) 1) then
-		(printout t "por ejemplo,el servicio en la posicion 1 " (send (nth$ 1  $?servicios2)  get-Nombre_ser)  crlf)
-	)
+	;(printout t "servicios actuales " (length$ $?servicios2) crlf)
+	;(if (>=(length$ $?servicios2) 1) then
+	;	(printout t "por ejemplo,el servicio en la posicion 1 " (send (nth$ 1  $?servicios2)  get-Nombre_ser)  crlf)
+	;)
 )
 
 (defrule recopilacion-usuario::preguntaNombre "Establece el nombre del usuario"
@@ -192,7 +200,7 @@
 	(test (eq ?tipo desconocido))
 	=>
 	(bind ?i (pregunta-indice "De que tipo es el grupo para el que busca piso " (create$ "Pareja" "Familia" "Grupo" "Individuo")))
-	(printout t "valor elegido " ?i crlf)
+	;;(printout t "valor elegido " ?i crlf)
 	(if (eq ?i 1)then
 		(modify ?g (tipo pareja) (tam_familia_grupo 2))
 	)
@@ -216,11 +224,26 @@
 )
 
 (defrule recopilacion-usuario::establecer-ocupacion "Establece si el usuario estudia o trabaja"
-	?g <- (Usuario (trabaja_estudia_ciudad ?t))
-	(test (eq ?t desconocido))
+	?g <- (Usuario (coorX ?t))
+	(not (preguntacoord done))
+	(test (eq ?t -1))
 	=>
-	(bind ?t (pregunta-si-no "Estudia y/o trabaja en esta ciudad? " ))
-	(modify ?g (trabaja_estudia_ciudad ?t))
+	(bind ?e (pregunta-si-no "Estudia y/o trabaja en esta ciudad? " ))
+	(if (eq ?e TRUE) then
+	(assert (preguntacoord ask))
+	)
+	else (assert (preguntacoord done))
+)
+
+(defrule recopilacion-usuario::pregunta-coord "si trabaja o estudia en la ciudad se pregunta donde"
+	?g <- (Usuario (coorX ?x)(coorY ?y))
+	?t <- (preguntacoord ask)
+	=>
+	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 100000))
+	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 100000))
+	(modify ?g (coorX ?x)(coorY ?y) )
+	(retract ?t)
+	(assert (preguntacoord done))
 )
 
 (defrule recopilacion-usuario::establecer-vehiculo "Establece si el usuario dispone de vehiculo"
@@ -230,16 +253,21 @@
 	(bind ?v (pregunta-si-no "Dispone de vehiculo propio? " ))
 	(modify ?g (posee_vehiculo ?v))
 )
-
-
-(defrule recopilacion-usuario::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
+(defrule recopilacion-usuario::inicia-prefernecias "Cambia de modulo para preguntar por preferencias"
+	(declare (salience -10))
+	=>
+	(focus recopilacion-preferencias)
+)
+;; reglas preferencias
+(defrule recopilacion-preferencias::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
 	(not (preferencias_usuario))
 	=>
 	(bind ?precio_maximo (pregunta-numerica "¿Cual es el precio maximo que quiere gastar? " 1 999999999))
 	(assert (preferencias_usuario (precio_maximo ?precio_maximo)))
+	(assert (falta preferencias))
 )
 
-(defrule recopilacion-usuario::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
+(defrule recopilacion-preferencias::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
 	?g <- (preferencias_usuario (precio_estricto ?precio_estricto))
 	(test (eq ?precio_estricto desconocido))
 	=>
@@ -247,7 +275,7 @@
 	(modify ?g (precio_estricto ?precio_estricto))
 )
 
-(defrule recopilacion-usuario::establecer-num_dormitorios_dobles "Establece el numero de dormitorios dobles deseado por el usuario"
+(defrule recopilacion-preferencias::establecer-num_dormitorios_dobles "Establece el numero de dormitorios dobles deseado por el usuario"
 	?g <- (preferencias_usuario (num_dormitorios_dobles ?num_dormitorios_dobles))
 	(test (< ?num_dormitorios_dobles 0))
 	=>
@@ -255,7 +283,7 @@
 	(modify ?g (num_dormitorios_dobles ?num_dormitorios_dobles))
 )
 
-;(defrule recopilacion-usuario::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
+;(defrule recopilacion-preferencias::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
 ;	?g <- (preferencias_usuario (tam_dormitorios ?tam_dormitorios))
 ;	(test (< ?tam_dormitorios 0))
 ;	=>
@@ -263,7 +291,7 @@
 ;	(modify ?g (tam_dormitorios ?tam_dormitorios))
 ;)
 
-(defrule recopilacion-usuario::establecer-precio_minimo "Establece el precio minimo a partir del cual el usuario piensa que la vivienda es adecuada"
+(defrule recopilacion-preferencias::establecer-precio_minimo "Establece el precio minimo a partir del cual el usuario piensa que la vivienda es adecuada"
 	?g <- (preferencias_usuario (precio_minimo ?precio_minimo))
 	(test (< ?precio_minimo 0))
 	=>
@@ -271,44 +299,65 @@
 	(modify ?g (precio_minimo ?precio_minimo))
 )
 
-(defrule recopilacion-usuario::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
+(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
+	?f <- (falta preferencias)
 	?g <- (preferencias_usuario)
 	=>
 	(bind $?serviciospref (create$ ))
 	(bind ?respuesta (pregunta-si-no "Deseas tener un centro de salud cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener un colegio cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener un estadio de deportes cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener un hipermercado cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener una zona de ocio nocturna cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener un supermercado cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener transporte publico cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener una zona comercial cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
 
 	(bind ?respuesta (pregunta-si-no "Deseas tener una zona verde cerca?" ))
-	(if (eq ?respuesta si) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
-
+	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
+	(retract ?f)
 	(modify ?g (distancia_servicio $?serviciospref))
+	;(assert (testing))
 )
 
-(defrule recopilacion-usuario::establecer-pref_transp_publico "Establece si el usuario prefiere utilizar el transporte publico"
-	?g <- (preferencias_usuario (pref_transp_publico ?pref_transp_publico))
-	(test (eq ?pref_transp_publico desconocido))
+;(defrule recopilacion-preferencias::testi
+;	?t<-(testing)
+;	(preferencias_usuario (distancia_servicio $?ds))
+;	=>
+;	(bind ?i 1)
+;		(while (<= ?i (length$ $?ds))
+;			do
+;			(bind ?sn (nth$ ?i  $?ds ))
+;			(printout t "servicio: " ?sn crlf)
+;			(bind ?i(+ ?i 1))
+;		)
+;		(retract ?t)
+;)
+
+
+(defrule recopilacion-preferencias::inicia-procesado "Da por acabada la fase de preguntar al usuario"
+	(declare (salience -10))
 	=>
-	(bind ?pref_transp_publico (pregunta-si-no "¿Prefieres utilizar el transporte publico? "))
-	(modify ?g (pref_transp_publico ?pref_transp_publico))
+	(focus procesado)
 )
+
+(defrule procesado::inicio
+	(declare (salience 10))
+	=>
+	(printout t "...Procesando datos..." crlf)
+	)
