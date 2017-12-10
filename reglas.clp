@@ -1,7 +1,7 @@
 ;;; Modulos
 (defmodule MAIN (export ?ALL))
 
-;;; Modulo de recopilacion de los datos del usuario
+;;; Modulos de recopilacion de los datos del usuario
 (defmodule recopilacion-usuario
 	(import MAIN ?ALL)
 	(export ?ALL)
@@ -11,12 +11,54 @@
 	(import recopilacion-usuario deftemplate ?ALL)
 	(export ?ALL)
 )
+;;;modulo para procesar los datos  y elegir las viviendas
 (defmodule procesado
 	(import MAIN ?ALL)
 	(import recopilacion-usuario deftemplate ?ALL)
 	(import recopilacion-preferencias deftemplate ?ALL)
 	(export ?ALL)
 )
+;;modulo para hacer operaciones extra a las viviendas que han sobrevivido a la criba
+(defmodule generacion_sol
+	(import MAIN ?ALL)
+	(export ?ALL)
+)
+(defmodule mostrar_resultados
+	(import MAIN ?ALL)
+	(export ?ALL)
+)
+
+;;; Se crea una clase para las recomendaciones para poder hacer listas de recomendaciones y tratarlas mejor
+;peta si lo defino en este arcvhio,esta en el .pont
+;(defclass Recomendacion
+;	(is-a USER)
+;	(role concrete)
+;	(slot contenido
+;		(type INSTANCE)
+;		(create-accessor read-write))
+;	(slot puntuacion
+;		(type INTEGER)
+;		(create-accessor read-write))
+;	(multislot justificaciones
+;		(type STRING)
+;		(create-accessor read-write))
+;)
+;;; Declaracion de messages ---------------------------
+
+;; Imprime los datos de un contenido
+(defmessage-handler MAIN::Vivienda imprimir ()
+(format t "Vivienda con ID: %s %n" ?self:Id)
+(format t "Precio mensual: %s %n" ?self:Precio_mensual)
+(format t "Tipo de piso: %s %n" ?self:Tipo)
+(format t "Altura del piso: %s " ?self:Altura_piso)
+;;regla de coordenadas
+)
+
+(defmessage-handler MAIN::Recomendacion imprimir ()
+ (printout t (send ?self:contenido imprimir))
+)
+;;; Declaracion de clases propias
+
 
 
 
@@ -131,6 +173,17 @@
 	(slot precio_minimo (type INTEGER)(default -1))
 	(multislot distancia_servicio (type SYMBOL))
 )
+
+;;; Template para una lista de recomendaciones sin orden
+(deftemplate MAIN::lista-rec-desordenada
+	(multislot recomendaciones (type INSTANCE))
+)
+
+;;; Template para una lista de recomendaciones con orden
+(deftemplate MAIN::lista-rec-ordenada
+	(multislot recomendaciones (type INSTANCE))
+)
+
 ;;; Reglas
 (defrule MAIN::initialRule "Regla inicial"
    	(declare (salience 10))
@@ -361,3 +414,100 @@
 	=>
 	(printout t "...Procesando datos..." crlf)
 	)
+
+(defrule procesado::anadir-viviendas "se anaden las viviendas a la clase auxiliar"
+	(declare (salience 10))
+	?viv<-(object (is-a Vivienda))
+	=>
+	(make-instance (gensym) of Recomendacion (contenido ?viv))
+
+	)
+
+
+
+(defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
+	;;aqui supongo que precio no fijo es +50%
+	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe))
+	?viv<-(object (is-a Recomendacion) (contenido ?c))
+		=>
+		(bind ?precio (send ?c get-Precio_mensual ))
+		(if (> ?precio ?pm) then
+			(send ?viv delete)
+			(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+		)
+	)
+
+(defrule procesado::genera_solucion "cambia de modulo"
+	(declare (salience -10))
+	=>
+	(printout t "...Generando solucion..." crlf)
+	(focus generacion_sol)
+)
+;;modulo para generar la solucion
+
+(defrule generacion_sol::crea-lista-recomendaciones "Se crea una lista de recomendaciones para ordenarlas"
+	(not (lista-rec-desordenada))
+	=>
+	(assert (lista-rec-desordenada))
+)
+
+
+(deffunction max_punt ($?viviendas_rec)
+	(bind ?max -1)
+	(bind ?melement nil)
+	(progn$ (?cur_recomend $?viviendas_rec)
+		(bind ?cur_punt (send ?cur_recomend get-puntuacion))
+		(if (> ?cur_punt ?max)
+			then
+			(bind ?max ?cur_punt)
+			(bind ?melement ?cur_recomend)
+			)
+	)
+	?melement
+)
+
+
+(defrule generacion_sol::crea-lista-desordenada "Anade una recomendacion a la lista de recomendaciones"
+		(declare (salience 10))
+		?rec <- (object (is-a Recomendacion))
+		?hecho <- (lista-rec-desordenada (recomendaciones $?lista))
+		(test (not (member$ ?rec $?lista)))
+			=>
+		(modify ?hecho (recomendaciones $?lista ?rec))
+	)
+
+	(defrule generacion_sol::crea-lista-ordenada "Se crea una lista ordenada de contenido"
+		(not (lista-rec-ordenada))
+		(lista-rec-desordenada (recomendaciones $?lista))
+		=>
+		(bind $?resultado (create$ ))
+		(while (not (eq (length$ $?lista) 0))  do
+			(bind ?curr-rec (max_punt $?lista))
+			(bind $?lista (delete-member$ $?lista ?curr-rec))
+		  (bind $?resultado (insert$ $?resultado (+ (length$ $?resultado) 1) ?curr-rec))
+		)
+		(assert (lista-rec-ordenada (recomendaciones $?resultado)))
+	)
+
+	(defrule generacion_sol::muestra_resultado
+		(declare (salience -10))
+			=>
+		(focus mostrar_resultados)
+		)
+
+;;modulo final
+(defrule mostrar_resultados::muestra
+	(lista-rec-ordenada (recomendaciones $?viv))
+	(Usuario (nombre ?nombre))
+	(not (final))
+		=>
+	(printout t crlf)
+	(format t "Estos son los pisos que se adaptan a sus necesidades, %s" ?nombre )
+	(printout t crlf)
+	(progn$ (?v $?viv)
+		(printout t (send ?v imprimir))
+		(printout t crlf)
+		(printout t crlf)
+	)
+	(assert (final))
+)
