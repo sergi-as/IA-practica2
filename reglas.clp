@@ -120,7 +120,7 @@
 	(slot precio_estricto (type SYMBOL)(default desconocido))
 	(slot num_dormitorios_dobles (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
-	;;;Restricción especíﬁca o preferencia sobre la distancia a algún tipo de servicio(colegios cerca,transporte público cerca, ...)
+	(multislot distancia_servicio (type SYMBOL))
 	(slot pref_transp_publico (type SYMBOL)(default desconocido))
 )
 ;;; Reglas
@@ -207,8 +207,6 @@
 	)
 )
 
-
-
 (defrule recopilacion-usuario::establecer-tam_familia_grupo "Establece el tamanyo de la familia del usuario"
 	?g <- (Usuario (tam_familia_grupo ?tam_familia_grupo))
 	(test (< ?tam_familia_grupo 0))
@@ -235,11 +233,10 @@
 
 
 (defrule recopilacion-usuario::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
-	?g <- (preferencias_usuario (precio_maximo ?precio_maximo))
-	(test (< ?precio_maximo 0))
+	(not (preferencias_usuario))
 	=>
 	(bind ?precio_maximo (pregunta-numerica "¿Cual es el precio maximo que quiere gastar? " 1 999999999))
-	(modify ?g (precio_maximo ?precio_maximo))
+	(assert (preferencias_usuario (precio_maximo ?precio_maximo)))
 )
 
 (defrule recopilacion-usuario::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
@@ -250,13 +247,13 @@
 	(modify ?g (precio_estricto ?precio_estricto))
 )
 
-;(defrule recopilacion-usuario::establecer-num_dormitorios "Establece el numero de dormitorios deseado por el usuario"
-;	?g <- (preferencias_usuario (num_dormitorios ?num_dormitorios))
-;	(test (< ?num_dormitorios 0))
-;	=>
-;	(bind ?num_dormitorios (pregunta-numerica "¿Cual es el numero de dormitorios deseado? " 1 20))
-;	(modify ?g (num_dormitorios ?num_dormitorios))
-;)
+(defrule recopilacion-usuario::establecer-num_dormitorios_dobles "Establece el numero de dormitorios dobles deseado por el usuario"
+	?g <- (preferencias_usuario (num_dormitorios_dobles ?num_dormitorios_dobles))
+	(test (< ?num_dormitorios_dobles 0))
+	=>
+	(bind ?num_dormitorios_dobles (pregunta-numerica "¿Cual es el numero de dormitorios dobles deseado? " 1 20))
+	(modify ?g (num_dormitorios_dobles ?num_dormitorios_dobles))
+)
 
 ;(defrule recopilacion-usuario::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
 ;	?g <- (preferencias_usuario (tam_dormitorios ?tam_dormitorios))
@@ -272,4 +269,55 @@
 	=>
 	(bind ?precio_minimo (pregunta-numerica "¿Cual es el precio minimo a gastar? " 1 999999999))
 	(modify ?g (precio_minimo ?precio_minimo))
+)
+
+(defrule recopilacion-usuario::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
+	?g <- (preferencias_usuario)
+	=>
+	(bind $?serviciospref (create$ ))
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener un centro de salud cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener un colegio cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener un estadio de deportes cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener un hipermercado cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener una zona de ocio nocturna cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener un supermercado cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener transporte publico cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener una zona comercial cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
+
+	(bind ?formatos (create$ "Si" "No"))
+	(bind ?respuesta (pregunta-indice "Deseas tener una zona verde cerca?" ?formatos))
+	(if (= ?respuesta 1) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
+
+	(modify ?g (distancia_servicio $?serviciospref))
+)
+
+(defrule recopilacion-usuario::establecer-pref_transp_publico "Establece si el usuario prefiere utilizar el transporte publico"
+	?g <- (preferencias_usuario (pref_transp_publico ?pref_transp_publico))
+	(test (eq ?pref_transp_publico desconocido))
+	=>
+	(bind ?pref_transp_publico (pregunta-si-no "¿Prefieres utilizar el transporte publico? "))
+	(modify ?g (pref_transp_publico ?pref_transp_publico))
 )
