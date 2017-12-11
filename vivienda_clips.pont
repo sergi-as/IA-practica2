@@ -317,18 +317,3 @@
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
-
-;;; Se crea una clase para las recomendaciones para poder hacer listas de recomendaciones y tratarlas mejor
-		(defclass Recomendacion
-			(is-a USER)
-			(role concrete)
-			(slot contenido
-				(type INSTANCE)
-				(create-accessor read-write))
-			(slot puntuacion
-				(type INTEGER)
-				(create-accessor read-write))
-			(multislot justificaciones
-				(type STRING)
-				(create-accessor read-write))
-		)

@@ -47,11 +47,13 @@
 
 ;; Imprime los datos de un contenido
 (defmessage-handler MAIN::Vivienda imprimir ()
+(printout t "----------------" crlf)
 (format t "Vivienda con ID: %s %n" ?self:Id)
-(format t "Precio mensual: %s %n" ?self:Precio_mensual)
+(format t "Precio mensual: %g %n" ?self:Precio_mensual)
 (format t "Tipo de piso: %s %n" ?self:Tipo)
 (format t "Altura del piso: %s " ?self:Altura_piso)
 ;;regla de coordenadas
+(printout t crlf "----------------" crlf)
 )
 
 (defmessage-handler MAIN::Recomendacion imprimir ()
@@ -247,7 +249,9 @@
 	(bind ?sexo (pregunta-opciones "Cual es tu sexo? (hombre o mujer) "  hombre mujer ))
 	(modify ?g (sexo ?sexo))
 )
-
+;;;;;;;;;;;;;;;;;;;;;;
+;TODO preguntar si la familia espera hijos
+;;;;;;;;;;;;;;;;;;;;;;
 (defrule recopilacion-usuario::establecer-tipo "establece la tipologia de la familia"
 	?g <-(Usuario (tipo ?tipo))
 	(test (eq ?tipo desconocido))
@@ -409,6 +413,10 @@
 	(focus procesado)
 )
 
+;;--------------------------------------------
+;; Modulo de procesado
+;;--------------------------------------------
+
 (defrule procesado::inicio
 	(declare (salience 10))
 	=>
@@ -427,15 +435,45 @@
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
-	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe))
-	?viv<-(object (is-a Recomendacion) (contenido ?c))
+	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
+	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
 		=>
 		(bind ?precio (send ?c get-Precio_mensual ))
 		(if (> ?precio ?pm) then
-			(send ?viv delete)
-			(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+			(if (eq ?pe TRUE) then
+				(send ?viv delete)
+				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+			)
+			else (if (<= ?precio (* 1.5 ?pm)) then
+				;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
+				(modify ?viv (puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) ))) (justificaciones $?j "-	El precio es alto"))
+			)
+
 		)
 	)
+
+(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
+		(preferencias_usuario (precio_minimo ?pm) )
+		?viv<-(object (is-a Recomendacion) (contenido ?c))
+			=>
+			(bind ?precio (send ?c get-Precio_mensual ))
+			(if (< ?precio ?pm) then
+				(send ?viv delete)
+				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+			)
+		)
+
+(defrule procesado::filtra_capacidad "Se eliminan los pisos con capacidad menor a las personas que van a vivir"
+			(Usuario (tam_familia_grupo ?t) )
+			?viv<-(object (is-a Recomendacion) (contenido ?c))
+				=>
+				(bind ?capacidad (+ (send ?c get-Dormi_simple ) (* 2 (send ?c get-Dormi_doble ) ) ) )
+				(if (< ?capacidad ?t) then
+					(send ?viv delete)
+					(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+				)
+			)
+
 
 (defrule procesado::genera_solucion "cambia de modulo"
 	(declare (salience -10))
@@ -443,7 +481,12 @@
 	(printout t "...Generando solucion..." crlf)
 	(focus generacion_sol)
 )
+
+
+;;--------------------------------------------
 ;;modulo para generar la solucion
+;;--------------------------------------------
+
 
 (defrule generacion_sol::crea-lista-recomendaciones "Se crea una lista de recomendaciones para ordenarlas"
 	(not (lista-rec-desordenada))
@@ -495,7 +538,12 @@
 		(focus mostrar_resultados)
 		)
 
+
+;;--------------------------------------------
 ;;modulo final
+;;--------------------------------------------
+
+
 (defrule mostrar_resultados::muestra
 	(lista-rec-ordenada (recomendaciones $?viv))
 	(Usuario (nombre ?nombre))
