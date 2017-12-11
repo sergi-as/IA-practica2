@@ -197,6 +197,11 @@
    	(printout t"¡Bienvenido! A continuacion se le formularan una serie de preguntas para poder recomendarle un piso adecuada a sus preferencias." crlf)
    	(printout t crlf)
     (focus recopilacion-usuario)
+
+		;; para debugar la parte de proceso
+		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
+		;(assert (preferencias_usuario (precio_maximo 900) (precio_estricto FALSE) ) )
+		;(focus procesado)
 )
 ;; Reglas set distancia, necesito una por cada tipo de servicio
 (defrule MAIN::setDistance "Primera regla que se ejecuta"
@@ -443,14 +448,27 @@
 			(if (eq ?pe TRUE) then
 				(send ?viv delete)
 				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+					else (if (<= ?precio (* 1.5 ?pm)) then
+						(assert (precio_puntuacion (send ?c get-Id) ))
+						else
+							(send ?viv delete)
+					)
 			)
-			else (if (<= ?precio (* 1.5 ?pm)) then
-				;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
-				(modify ?viv (puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) ))) (justificaciones $?j "-	El precio es alto"))
-			)
-
 		)
 	)
+
+(defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
+	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
+	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+	?id <-(send ?c get-Id)
+	?f <-(precio_puntuacion ?id)
+	=>
+	(bind ?precio (send ?c get-Precio_mensual ))
+	;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
+	(send ?viv put-justificaciones $?j "-	El precio es alto")
+	(send ?viv put-puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) )) )
+	(retract ?f)
+)
 
 (defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
 		(preferencias_usuario (precio_minimo ?pm) )

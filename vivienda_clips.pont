@@ -22,7 +22,7 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Precio_mensual
-		(type FLOAT)
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Superficie
