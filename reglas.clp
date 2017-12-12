@@ -49,18 +49,89 @@
 (defmessage-handler MAIN::Vivienda imprimir ()
 (printout t "----------------" crlf)
 (format t "Vivienda con ID: %s %n" ?self:Id)
+(printout t crlf)
 (format t "Precio mensual: %g %n" ?self:Precio_mensual)
+(printout t crlf)
 (format t "Tipo de piso: %s %n" ?self:Tipo)
-(format t "Altura del piso: %s " ?self:Altura_piso)
-;;regla de coordenadas
+(printout t crlf)
+(format t "Altura del piso: %s %n" ?self:Altura_piso)
+(printout t crlf)
+(format t "Dormitorios simples: %g %n" ?self:Dormi_simple)
+(printout t crlf)
+(format t "Dormitorios dobles: %g %n" ?self:Dormi_doble)
+(printout t crlf)
+(format t "Superficie: %g %n" ?self:Superficie)
+(printout t crlf)
+(if (eq ?self:vistas TRUE)then (format t "Con vistas %n")
+else (format t "Sin vistas %n"))
+(printout t crlf)
+(if (eq ?self:Piscina TRUE)then (format t "Con piscina %n")
+else (format t "Sin piscina %n"))
+(printout t crlf)
+(if (eq ?self:Terraza TRUE)then (format t "Con terraza %n")
+else (format t "Sin terraza %n"))
+(printout t crlf)
+(if (eq ?self:Amueblada TRUE)then (format t "Amueblada %n")
+else (format t "Sin muebles %n"))
+(printout t crlf)
+(if (eq ?self:Garaje TRUE)then (format t "Con garaje %n")
+else (format t "Sin garaje %n"))
+(printout t crlf)
+(if (eq ?self:Balcon TRUE)then (format t "Con balcon %n")
+else (format t "Sin balcon %n"))
+(printout t crlf)
+(if (eq ?self:Calefaccion TRUE)then (format t "Con calefaccion %n")
+else (format t "Sin calefaccion %n"))
+(printout t crlf)
+(if (eq ?self:Aire TRUE)then (format t "Con aire acondicionado %n")
+else (format t "Sin aire acondicionado %n"))
+(printout t crlf)
+(if (eq ?self:Electrodomesticos TRUE)then (format t "Con electrodomesticos %n")
+else (format t "Sin electrodomesticos %n"))
+(printout t crlf)
+(if (eq ?self:Mascotas TRUE)then (format t "Apto para mascotas %n")
+else (format t "No apto para mascotas %n"))
+(printout t crlf)
+(printout t "Servicios cerca:" crlf)
+(progn$ (?serv_cerca ?self:servicio_cerca)
+		(printout t (send ?serv_cerca get-Nombre_ser) crlf)
+)
+(printout t "Servicios a media distancia:" crlf)
+(progn$ (?serv_media ?self:servicio_media)
+		(printout t (send ?serv_media get-Nombre_ser) crlf)
+)
+(if (eq ?self:Sol_man TRUE)then (format t "Con sol por la mañana %n")
+else (format t "Sin sol por la mañana %n"))
+(printout t crlf)
+(if (eq ?self:Sol_tarde TRUE)then (format t "Con sol por la tarde %n")
+else (format t "Sin sol por la tarde %n"))
+(printout t crlf)
+;;regla de coordenadas falta
 (printout t crlf "----------------" crlf)
 )
 
 (defmessage-handler MAIN::Recomendacion imprimir ()
  (printout t (send ?self:contenido imprimir))
+ (printout t "-----------------------------------" crlf)
+ ;;;(format t "Nivel de recomendacion: %d %n" ?self:puntuacion)
+ ;;;(printout t "Justificacion de la eleccion: " crlf)
+ ;;;(progn$ (?curr-just ?self:justificaciones)
+ ;;; (printout t ?curr-just crlf)
+ ;;;)
+ (printout t crlf)
+ (printout t "-----------------------------------" crlf)
 )
-;;; Declaracion de clases propias
 
+;;;NOSE QUE TIPO METERLE
+(defmessage-handler MAIN::TIPO imprimir ()
+	(printout t "============================================" crlf)
+	(progn$ (?rec ?self:recomendaciones)
+		(printout t (send ?rec imprimir))
+	)
+	(printout t "============================================" crlf)
+)
+
+;;; Declaracion de clases propias
 
 
 
@@ -362,41 +433,57 @@
 )
 
 (defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
-	?f <- (falta preferencias)
-	?g <- (preferencias_usuario)
+    ?hecho <- (servicios_pref ask)
+	?pref <- (preferencias_usuario)
 	=>
-	(bind $?serviciospref (create$ ))
-	(bind ?respuesta (pregunta-si-no "Deseas tener un centro de salud cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener un colegio cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener un estadio de deportes cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener un hipermercado cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener una zona de ocio nocturna cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener un supermercado cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener transporte publico cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener una zona comercial cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
-
-	(bind ?respuesta (pregunta-si-no "Deseas tener una zona verde cerca?" ))
-	(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
-	(retract ?f)
-	(modify ?g (distancia_servicio $?serviciospref))
-	;(assert (testing))
+	(bind $?nom-servicios (create$ transporte_publico colegio centro_de_salud estadio_de_deportes hipermercado ocio_nocturno supermercado zona_comercial zona_verde))
+	(bind ?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?nom-servicios))
+	(assert (servicios_pref TRUE))
+    (bind $?respuesta (create$ ))
+	(loop-for-count (?i 1 (length$ ?escogido)) do
+		(bind ?curr-index (nth$ ?i ?escogido))
+        (if (= ?curr-index 0) then (assert (servicios_pref FALSE)))
+		(bind ?curr-servicio (nth$ ?curr-index ?nom_servicios))
+		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
+	)
+	(retract ?hecho)
+    (modify ?pref (distancia_servicio $?respuesta))
 )
+;(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
+	;?f <- (falta preferencias)
+	;?g <- (preferencias_usuario)
+	;=>
+	;(bind $?serviciospref (create$ ))
+	;(bind ?respuesta (pregunta-si-no "Deseas tener un centro de salud cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
 
+	;(bind ?respuesta (pregunta-si-no "Deseas tener un colegio cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener un estadio de deportes cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener un hipermercado cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona de ocio nocturna cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener un supermercado cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener transporte publico cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona comercial cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
+
+	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona verde cerca?" ))
+	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
+	;(retract ?f)
+	;(modify ?g (distancia_servicio $?serviciospref))
+	;(assert (testing))
+;)
 ;(defrule recopilacion-preferencias::testi
 ;	?t<-(testing)
 ;	(preferencias_usuario (distancia_servicio $?ds))
@@ -435,8 +522,6 @@
 	(make-instance (gensym) of Recomendacion (contenido ?viv))
 
 	)
-
-
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
@@ -551,7 +636,6 @@
 	?melement
 )
 
-
 (defrule generacion_sol::crea-lista-desordenada "Anade una recomendacion a la lista de recomendaciones"
 		(declare (salience 10))
 		?rec <- (object (is-a Recomendacion))
@@ -579,7 +663,6 @@
 			=>
 		(focus mostrar_resultados)
 		)
-
 
 ;;--------------------------------------------
 ;;modulo final
