@@ -470,7 +470,7 @@
 	(retract ?f)
 )
 
-(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
+(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo" "Si el precio no es estricto o es estricto deberia mirarse"
 		(preferencias_usuario (precio_minimo ?pm) )
 		?viv<-(object (is-a Recomendacion) (contenido ?c))
 			=>
@@ -492,6 +492,20 @@
 				)
 			)
 
+(defrule procesado::filtra_servicios "Se eliminan los pisos sin los servicios que el usuario ha pedido explicitamente"
+			(preferencias_usuario (distancia_servicio $?servicios))
+			?viv <- (object (is-a Recomendacion) (contenido ?c))
+			=>
+			(bind $?servicios_vivienda (send ?c get-servicio_cerca))
+			(bind ?fin FALSE)
+			(progn$ (?servicio $?servicios)
+				(if (and (eq FALSE is_in ?servicio $?servicios) (eq ?fin FALSE))
+					then
+					(send ?viv delete)
+					(bind ?fin TRUE)
+				)
+			)
+)
 
 (defrule procesado::genera_solucion "cambia de modulo"
 	(declare (salience -10))
@@ -500,6 +514,16 @@
 	(focus generacion_sol)
 )
 
+(deffunction is_in (?servicio $?servicios)
+		(bind ?is_inside FALSE)
+		(progn$ (?servicio_test $?servicios)
+			(if (eq ?servicio ?servicio_test)
+				then
+				(bind ?is_inside TRUE)
+			)
+		)
+		?is_inside
+)
 
 ;;--------------------------------------------
 ;;modulo para generar la solucion
