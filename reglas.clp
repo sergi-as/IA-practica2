@@ -123,13 +123,13 @@ else (format t "Sin sol por la tarde %n"))
 )
 
 ;;;NOSE QUE TIPO METERLE
-(defmessage-handler MAIN::TIPO imprimir ()
-	(printout t "============================================" crlf)
-	(progn$ (?rec ?self:recomendaciones)
-		(printout t (send ?rec imprimir))
-	)
-	(printout t "============================================" crlf)
-)
+;(defmessage-handler MAIN::TIPO imprimir ()
+;	(printout t "============================================" crlf)
+;	(progn$ (?rec ?self:recomendaciones)
+;		(printout t (send ?rec imprimir))
+;	)
+;	(printout t "============================================" crlf)
+;)
 
 ;;; Declaracion de clases propias
 
@@ -270,7 +270,8 @@ else (format t "Sin sol por la tarde %n"))
     (focus recopilacion-usuario)
 
 		;; para debugar la parte de proceso
-		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
+		;;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
+		;;(focus recopilacion-preferencias)
 		;(assert (preferencias_usuario (precio_maximo 900) (precio_estricto FALSE) ) )
 		;(focus procesado)
 )
@@ -290,9 +291,10 @@ else (format t "Sin sol por la tarde %n"))
 	;;(printout t "encontrada pareja vivienda " ?i " servicio " ?nser " distancia : " ?euc crlf )
 	(if (<= ?euc 500) then
 		(send ?viv put-servicio_cerca $?scer ?ser)
-	)
-	else (if (<= ?euc 1000) then
-		(send ?viv put-servicio_media $smed ?ser)
+	
+		else (if (<= ?euc 1000) then
+			(send ?viv put-servicio_media $?smed ?ser)
+		)
 	)
 	;para mostrar los servicios cerca ;;;;;; p 27 como iterar multislot
 	(bind $?servicios2 (send ?viv get-servicio_cerca))
@@ -391,13 +393,17 @@ else (format t "Sin sol por la tarde %n"))
 	=>
 	(focus recopilacion-preferencias)
 )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; reglas preferencias
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defrule recopilacion-preferencias::establecer-preciomaximo "Establece el precio maximo a gastar del usuario"
 	(not (preferencias_usuario))
 	=>
 	(bind ?precio_maximo (pregunta-numerica "¿Cual es el precio maximo que quiere gastar? " 1 999999999))
 	(assert (preferencias_usuario (precio_maximo ?precio_maximo)))
-	(assert (falta preferencias))
+	(assert (servicios_pref ask))
 )
 
 (defrule recopilacion-preferencias::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
@@ -437,13 +443,13 @@ else (format t "Sin sol por la tarde %n"))
 	?pref <- (preferencias_usuario)
 	=>
 	(bind $?nom-servicios (create$ transporte_publico colegio centro_de_salud estadio_de_deportes hipermercado ocio_nocturno supermercado zona_comercial zona_verde))
-	(bind ?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?nom-servicios))
+	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?nom-servicios))
 	(assert (servicios_pref TRUE))
     (bind $?respuesta (create$ ))
-	(loop-for-count (?i 1 (length$ ?escogido)) do
-		(bind ?curr-index (nth$ ?i ?escogido))
+	(loop-for-count (?i 1 (length$ $?escogido)) do
+		(bind ?curr-index (nth$ ?i $?escogido))
         (if (= ?curr-index 0) then (assert (servicios_pref FALSE)))
-		(bind ?curr-servicio (nth$ ?curr-index ?nom_servicios))
+		(bind ?curr-servicio (nth$ ?curr-index $?nom-servicios))
 		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
 	)
 	(retract ?hecho)
@@ -555,7 +561,7 @@ else (format t "Sin sol por la tarde %n"))
 	(retract ?f)
 )
 
-(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo" "Si el precio no es estricto o es estricto deberia mirarse"
+(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo" 
 		(preferencias_usuario (precio_minimo ?pm) )
 		?viv<-(object (is-a Recomendacion) (contenido ?c))
 			=>
