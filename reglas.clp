@@ -387,8 +387,8 @@ else (format t "Sin sol por la tarde %n"))
 	?g <- (Usuario (coorX ?x)(coorY ?y))
 	?t <- (preguntacoord ask)
 	=>
-	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 100000))
-	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 100000))
+	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 2000))
+	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 2000))
 	(modify ?g (coorX ?x)(coorY ?y) )
 	(retract ?t)
 	(assert (preguntacoord done))
@@ -549,6 +549,41 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (valora_trabajo))
 )
 
+;bucle infinito aqui, he de solucionarlo
+(defrule procesado::establecer_servicios_cerca "establece los servicios cercanos a cada piso"
+	(declare (salience 5))
+	?viv <- (object (is-a Recomendacion) (contenido ?c))
+	?serv <- (object (is-a Servicio) (Coord_serv ?coord))
+	=>
+	(bind ?coord-viv (send ?c get-Coord_viv))
+	(bind ?coord_x_serv (send ?coord get-X))
+	(bind ?coord_y_serv (send ?coord get-Y))
+	(bind ?coord_x_viv (send ?coord-viv get-X))
+	(bind ?coord_y_viv (send ?coord-viv get-Y))
+	(if (< (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 500)
+		then
+
+
+	)
+)
+
+;bucle infinito aqui, he de solucionarlo
+(defrule procesado::establecer_servicios_cerca "establece los servicios cercanos a cada piso"
+	(declare (salience 5))
+	?viv <- (object (is-a Recomendacion) (contenido ?c))
+	?serv <- (object (is-a Servicio) (Coord_serv ?coord))
+	=>
+	(bind ?coord-viv (send ?c get-Coord_viv))
+	(bind ?coord_x_serv (send ?coord get-X))
+	(bind ?coord_y_serv (send ?coord get-Y))
+	(bind ?coord_x_viv (send ?coord-viv get-X))
+	(bind ?coord_y_viv (send ?coord-viv get-Y))
+	(if (and (< (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 1000) (>= (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 500)
+		then
+		
+
+	)
+)
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
@@ -625,6 +660,7 @@ else (format t "Sin sol por la tarde %n"))
 		)
 		?is_inside
 )
+
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 			(preferencias_usuario (distancia_servicio $?servicios))
 			?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
@@ -772,21 +808,20 @@ else (format t "Sin sol por la tarde %n"))
 	(printout t crlf)
 	(format t "Estos son los pisos que se adaptan a sus necesidades, %s" ?nombre )
 	(printout t crlf)
-	(printout t "Viviendas que no cumplen todas sus preferencias, pero le podrian interesar: " crlf)
 	(progn$ (?r $?poco)
+		(printout t "Viviendas que no cumplen todas sus preferencias, pero le podrian interesar: " crlf)
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
 	)
-	(printout t "Viviendas que cumplen todas sus preferencias: " crlf)
 	(progn$ (?r $?norm)
+		(printout t "Viviendas que cumplen todas sus preferencias: " crlf)
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
 	)
-	(printout t "Viviendas que cumplen todas sus preferencias, y tienen extras que creemos que le interesaran: " crlf)
 	(progn$ (?r $?mucho)
-
+		(printout t "Viviendas que cumplen todas sus preferencias, y tienen extras que creemos que le interesaran: " crlf)
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
