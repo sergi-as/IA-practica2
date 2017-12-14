@@ -1,4 +1,4 @@
-; Sat Dec 09 00:14:17 CET 2017
+; Thu Dec 14 19:38:59 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -20,12 +20,12 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[vivienda_ProjectKB_Class4]
-		[vivienda_ProjectKB_Class5]
-		[vivienda_ProjectKB_Class6]
-		[vivienda_ProjectKB_Class7]
-		[vivienda_ProjectKB_Class8]
-		[vivienda_ProjectKB_Class9]))
+		[vivienda_ProjectKB_Class10156]
+		[vivienda_ProjectKB_Class10157]
+		[vivienda_ProjectKB_Class10158]
+		[vivienda_ProjectKB_Class10159]
+		[vivienda_ProjectKB_Class10160]
+		[vivienda_ProjectKB_Class10161]))
 
 ([CLSES_TAB] of  Widget
 
@@ -69,7 +69,7 @@
 	(is_hidden FALSE)
 	(widget_class_name "edu.stanford.smi.protege.widget.InstancesTab"))
 
-([KB_630679_Class3] of  Map
+([KB_397396_Class3] of  Map
 )
 
 ([KB_722638_Class0] of  String
@@ -80,9 +80,9 @@
 ([KB_722638_Class1] of  Map
 
 	(entries
-		[vivienda_ProjectKB_Class10]
-		[vivienda_ProjectKB_Class11]
-		[vivienda_ProjectKB_Class12]))
+		[vivienda_ProjectKB_Class10162]
+		[vivienda_ProjectKB_Class10163]
+		[vivienda_ProjectKB_Class10164]))
 
 ([KB_722638_Class10] of  Property_List
 )
@@ -619,11 +619,11 @@
 
 	(browser_slot_names [BROWSER_SLOT_NAMES])
 	(customized_instance_widgets
-		[INSTANCE_ANNOTATION_FORM_WIDGET]
 		[STANDARD_FACET_FORM_WIDGET]
 		[STANDARD_SLOT_FORM_WIDGET]
 		[STANDARD_CLASS_FORM_WIDGET]
-		[PAL_FORM_WIDGET])
+		[PAL_FORM_WIDGET]
+		[INSTANCE_ANNOTATION_FORM_WIDGET])
 	(default_cls_metaclass ":STANDARD-CLASS")
 	(default_facet_metaclass ":STANDARD-FACET")
 	(default_instance_widget_class_name "edu.stanford.smi.protege.widget.FormWidget")
@@ -1007,9 +1007,53 @@
 	(name "vertical_stretcher")
 	(string_value ":DIRECT-TEMPLATE-SLOTS"))
 
-([vivienda_ProjectKB_Class10] of  Map_Entry
+([vivienda_ProjectKB_Class10156] of  String
+
+	(name ":INSTANCE-ANNOTATION")
+	(string_value "%3AANNOTATION-TEXT"))
+
+([vivienda_ProjectKB_Class10157] of  String
+
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
+
+([vivienda_ProjectKB_Class10158] of  String
+
+	(name "Coordenadas")
+	(string_value "X{+}Y"))
+
+([vivienda_ProjectKB_Class10159] of  String
+
+	(name "Bus")
+	(string_value "Nombre_ser"))
+
+([vivienda_ProjectKB_Class10160] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([vivienda_ProjectKB_Class10161] of  String
+
+	(name "Vivienda")
+	(string_value "Id"))
+
+([vivienda_ProjectKB_Class10162] of  Map_Entry
 
 	(key "suppress_instance_counting")
+	(key_class "java.lang.String")
+	(value "false")
+	(value_class "java.lang.String"))
+
+([vivienda_ProjectKB_Class10163] of  Map_Entry
+
+	(key "change_tracking_active")
+	(key_class "java.lang.String")
+	(value "false")
+	(value_class "java.lang.String"))
+
+([vivienda_ProjectKB_Class10164] of  Map_Entry
+
+	(key "add_name_on_instance_form")
 	(key_class "java.lang.String")
 	(value "false")
 	(value_class "java.lang.String"))
@@ -1017,47 +1061,3 @@
 ([vivienda_ProjectKB_Class107] of  String
 
 	(name "SearchTab_Query"))
-
-([vivienda_ProjectKB_Class11] of  Map_Entry
-
-	(key "change_tracking_active")
-	(key_class "java.lang.String")
-	(value "false")
-	(value_class "java.lang.String"))
-
-([vivienda_ProjectKB_Class12] of  Map_Entry
-
-	(key "add_name_on_instance_form")
-	(key_class "java.lang.String")
-	(value "false")
-	(value_class "java.lang.String"))
-
-([vivienda_ProjectKB_Class4] of  String
-
-	(name ":INSTANCE-ANNOTATION")
-	(string_value "%3AANNOTATION-TEXT"))
-
-([vivienda_ProjectKB_Class5] of  String
-
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
-
-([vivienda_ProjectKB_Class6] of  String
-
-	(name "Coordenadas")
-	(string_value "X{+}Y"))
-
-([vivienda_ProjectKB_Class7] of  String
-
-	(name "Vivienda")
-	(string_value "Id"))
-
-([vivienda_ProjectKB_Class8] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([vivienda_ProjectKB_Class9] of  String
-
-	(name "Bus")
-	(string_value "Nombre_ser"))
