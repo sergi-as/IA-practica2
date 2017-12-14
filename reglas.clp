@@ -539,7 +539,9 @@ else (format t "Sin sol por la tarde %n"))
 	?viv<-(object (is-a Vivienda))
 	=>
 	(make-instance (gensym) of Recomendacion (contenido ?viv))
-
+  (assert (fil_precio))
+	(assert (fil_bajo))
+	(assert (fil_cap))
 	)
 (defrule procesado::fact_trabajo "fact si el usuario trabaja en la ciudad y hay que valorar"
 	(declare (salience 10))
@@ -549,9 +551,21 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (valora_trabajo))
 )
 
+(defrule procesado::fact_cerca_preferencia "crea los facts para los servicios que el usuario quiere cerca"
+			(declare (salience 10))
+			(not (or (fil_precio) (fil_bajo) (fil_cap)))
+			(preferencias_usuario (distancia_servicio $?servicios))
+			(object (is-a Recomendacion) (contenido ?c))
+			=>
+			(progn$ (?servicio $?servicios)
+					;;(printout t "defino fact con " ?servicio (send ?c get-Id) crlf)
+					(assert (servicio_pref_puntuacion ?servicio (send ?c get-Id) ))
+			)
+)
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
+	?f<-(fil_precio)
 	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
 	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
 		=>
@@ -567,9 +581,11 @@ else (format t "Sin sol por la tarde %n"))
 					)
 			)
 		)
+		(retract ?f)
 	)
 
 (defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
+		?f<-(fil_bajo)
 		(preferencias_usuario (precio_minimo ?pm) )
 		?viv<-(object (is-a Recomendacion) (contenido ?c))
 			=>
@@ -578,9 +594,11 @@ else (format t "Sin sol por la tarde %n"))
 				(send ?viv delete)
 				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
 			)
+			(retract ?f)
 		)
 
 (defrule procesado::filtra_capacidad "Se eliminan los pisos con capacidad menor a las personas que van a vivir"
+ 			?f<- (fil_cap)
 			(Usuario (tam_familia_grupo ?t) )
 			?viv<-(object (is-a Recomendacion) (contenido ?c))
 				=>
@@ -589,6 +607,7 @@ else (format t "Sin sol por la tarde %n"))
 					(send ?viv delete)
 					(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
 				)
+				(retract ?f)
 			)
 
 (defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
@@ -604,15 +623,7 @@ else (format t "Sin sol por la tarde %n"))
 			(retract ?f)
 )
 
-(defrule procesado::no_bucle_infinito "Para evitar el bucle infinito en la siguiente funcion de puntua"
-			(preferencias_usuario (distancia_servicio $?servicios))
-			(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) )
-			=>
-			(bind ?id (send ?c get-Id))
-			(progn$ (?servicio $?servicios)
-					(assert (servicio_puntuacion ?servicio ?id))
-			)
-)
+
 
 
 (deffunction is_in (?servicio $?servicios)
@@ -626,29 +637,46 @@ else (format t "Sin sol por la tarde %n"))
 		?is_inside
 )
 
+
+
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
-			(preferencias_usuario (distancia_servicio $?servicios))
-			?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
-			?id <- (send ?c get-Id)
-			?f <- (servicio_puntuacion ?servicio ?id)
-			=>
-			(bind $?servicios_vivienda_cerca (send ?c get-servicio_cerca))
-			(bind $?servicios_vivienda_media (send ?c get-servicio_media))
-			(if (is_in ?servicio $?servicios_vivienda_cerca)
-				then
-				(send ?viv put-justificaciones $?j "-El servicio ?servicio esta cerca")
-				(send ?viv put-puntuacion (+ ?p 2))
-				(retract ?f)
-			else (if (is_in ?servicio $?servicios_vivienda_media)
-					then
-					(send ?viv put-justificaciones $?j "-El servicio ?servicio esta a media distancia")
-					(send ?viv put-puntuacion (+ ?p 1))
-					(retract ?f)
-					else
-					(retract ?f)
+				;(preferencias_usuario (distancia_servicio $?servicios))
+				?ser <-(object (is-a Servicio) )
+			  ?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+				?f <- (servicio_pref_puntuacion ?cls ?id )
+				(test (eq ?cls (class ?ser)))
+				(test (eq ?id (send ?c get-Id)))
+				=>
+				(bind ?contador FALSE)
+				(progn$ (?media (send ?c get-servicio_media))
+					;(printout t "inside progn, about to compare " (class ?ser) " " (class ?cerca) crlf)
+					;(printout t "are they equal? " (eq (class ?ser) (class ?cerca)) crlf)
+
+						(if (eq (class ?ser) (class ?media))then
+						(bind ?contador TRUE)
+						(send ?viv put-puntuacion (+ ?p 1))
+						(send ?viv put-justificaciones $?j (str-cat "+ Servicio del tipo " (class ?media) " a distancia media") )
+					)
 				)
-			)
+				(progn$ (?cerca (send ?c get-servicio_cerca))
+				;	(printout t "inside progn, about to compare " (class ?ser) " " (class ?cerca) crlf)
+					;(printout t "are they equal? " (eq (class ?ser) (class ?cerca)) crlf)
+					;(printout t "now with id " ?id crlf crlf)
+						(if (eq (class ?ser) (class ?cerca))then
+						;;(printout t "LIKE WTF " ?id crlf crlf)
+						(bind ?contador TRUE)
+						(send ?viv put-puntuacion (+ ?p 2))
+						(send ?viv put-justificaciones $?j (str-cat "+ Servicio del tipo " (class ?cerca) " cerca") )
+					)
+				)
+
+				(if (eq ?contador FALSE) then
+					(send ?viv put-puntuacion (- ?p 3))
+					(send ?viv put-justificaciones $?j (str-cat "- Servicio del tipo " (class ?ser) " lejos") )
+				)
+				(retract ?f)
 )
+
 
 
 
