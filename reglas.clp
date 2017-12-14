@@ -101,7 +101,7 @@ else (format t "No apto para mascotas %n"))
 		(printout t (send ?serv_media get-Nombre_ser) crlf)
 )
 (if (eq ?self:Sol_man TRUE)then (format t "Con sol por la manana %n")
-else (format t "Sin sol por la mañana %n"))
+else (format t "Sin sol por la manana %n"))
 (printout t crlf)
 (if (eq ?self:Sol_tarde TRUE)then (format t "Con sol por la tarde %n")
 else (format t "Sin sol por la tarde %n"))
@@ -283,7 +283,7 @@ else (format t "Sin sol por la tarde %n"))
 
 		;; para debugar la parte de proceso
 
-		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
+		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
 		;;(focus recopilacion-preferencias)
 		(assert (preferencias_usuario (precio_maximo 9000) (precio_estricto FALSE) (distancia_servicio Bus) ) )
 		(focus procesado)
@@ -549,41 +549,6 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (valora_trabajo))
 )
 
-;bucle infinito aqui, he de solucionarlo
-(defrule procesado::establecer_servicios_cerca "establece los servicios cercanos a cada piso"
-	(declare (salience 5))
-	?viv <- (object (is-a Recomendacion) (contenido ?c))
-	?serv <- (object (is-a Servicio) (Coord_serv ?coord))
-	=>
-	(bind ?coord-viv (send ?c get-Coord_viv))
-	(bind ?coord_x_serv (send ?coord get-X))
-	(bind ?coord_y_serv (send ?coord get-Y))
-	(bind ?coord_x_viv (send ?coord-viv get-X))
-	(bind ?coord_y_viv (send ?coord-viv get-Y))
-	(if (< (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 500)
-		then
-
-
-	)
-)
-
-;bucle infinito aqui, he de solucionarlo
-(defrule procesado::establecer_servicios_cerca "establece los servicios cercanos a cada piso"
-	(declare (salience 5))
-	?viv <- (object (is-a Recomendacion) (contenido ?c))
-	?serv <- (object (is-a Servicio) (Coord_serv ?coord))
-	=>
-	(bind ?coord-viv (send ?c get-Coord_viv))
-	(bind ?coord_x_serv (send ?coord get-X))
-	(bind ?coord_y_serv (send ?coord get-Y))
-	(bind ?coord_x_viv (send ?coord-viv get-X))
-	(bind ?coord_y_viv (send ?coord-viv get-Y))
-	(if (and (< (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 1000) (>= (euclidean ?coord_x_serv ?coord_y_serv ?coord_x_viv ?coord_y_viv) 500)
-		then
-		
-
-	)
-)
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
@@ -686,15 +651,26 @@ else (format t "Sin sol por la tarde %n"))
 )
 
 
-;TODO
-;(defrule procesado::trabajo_cerca "Si el usuario trabaja en la ciudad,puntua mejor si esta cerca"
-;	(valora_trabajo)
-;	(Usuario (coorX ?x) (coorY ?y))
-;	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
-;	=>
 
+(defrule procesado::trabajo_cerca "Si el usuario trabaja en la ciudad,puntua mejor si esta cerca"
+	?fact <-(valora_trabajo)
+	(Usuario (coorX ?x) (coorY ?y))
+	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+	=>
+	(bind ?co (send ?c get-Coord_viv))
+  (bind ?euc ( euclidean ?x ?y (send ?co get-X) (send ?co get-Y)  ) )
+	(if (<= ?euc 500) then
+		(send ?viv put-puntuacion (+ ?p 2))
+		(send ?viv put-justificaciones $?j "+ Trabajo/Estudios cerca" )
+		else
+			(if (<= ?euc 1000) then
+				(send ?viv put-puntuacion (+ ?p 1))
+				(send ?viv put-justificaciones $?j "+ Trabajo/Estudios distancia media" )
+			)
+	)
+	(retract ?fact)
 
-;)
+)
 
 (defrule procesado::genera_solucion "cambia de modulo"
 	(declare (salience -10))
