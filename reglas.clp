@@ -291,7 +291,7 @@ else (format t "Sin sol por la tarde %n"))
 	;;(printout t "encontrada pareja vivienda " ?i " servicio " ?nser " distancia : " ?euc crlf )
 	(if (<= ?euc 500) then
 		(send ?viv put-servicio_cerca $?scer ?ser)
-	
+
 		else (if (<= ?euc 1000) then
 			(send ?viv put-servicio_media $?smed ?ser)
 		)
@@ -442,7 +442,7 @@ else (format t "Sin sol por la tarde %n"))
     ?hecho <- (servicios_pref ask)
 	?pref <- (preferencias_usuario)
 	=>
-	(bind $?nom-servicios (create$ transporte_publico colegio centro_de_salud estadio_de_deportes hipermercado ocio_nocturno supermercado zona_comercial zona_verde))
+	(bind $?nom-servicios (create$ Bus Metro colegio Centro_de_salud Estadio_de_deportes Ocio_nocturno Supermercado Zona_comercial Zona_verde))
 	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?nom-servicios))
 	(assert (servicios_pref TRUE))
     (bind $?respuesta (create$ ))
@@ -548,20 +548,7 @@ else (format t "Sin sol por la tarde %n"))
 		)
 	)
 
-(defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
-	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
-	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
-	?id <-(send ?c get-Id)
-	?f <-(precio_puntuacion ?id)
-	=>
-	(bind ?precio (send ?c get-Precio_mensual ))
-	;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
-	(send ?viv put-justificaciones $?j "-	El precio es alto")
-	(send ?viv put-puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) )) )
-	(retract ?f)
-)
-
-(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo" 
+(defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
 		(preferencias_usuario (precio_minimo ?pm) )
 		?viv<-(object (is-a Recomendacion) (contenido ?c))
 			=>
@@ -583,17 +570,50 @@ else (format t "Sin sol por la tarde %n"))
 				)
 			)
 
-(defrule procesado::filtra_servicios "Se eliminan los pisos sin los servicios que el usuario ha pedido explicitamente"
-			(preferencias_usuario (distancia_servicio $?servicios))
-			?viv <- (object (is-a Recomendacion) (contenido ?c))
+(defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
+			(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
+			?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+			?id <-(send ?c get-Id)
+			?f <-(precio_puntuacion ?id)
 			=>
-			(bind $?servicios_vivienda (send ?c get-servicio_cerca))
-			(bind ?fin FALSE)
+			(bind ?precio (send ?c get-Precio_mensual ))
+			;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
+			(send ?viv put-justificaciones $?j "-	El precio es alto")
+			(send ?viv put-puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) )) )
+			(retract ?f)
+)
+
+(defrule procesado::no_bucle_infinito "Para evitar el bucle infinito en la siguiente funcion de puntua"
+			(preferencias_usuario (distancia_servicio $?servicios))
+			(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+			=>
+			(bind ?id (send ?c get-Id))
 			(progn$ (?servicio $?servicios)
-				(if (and (eq FALSE is_in ?servicio $?servicios) (eq ?fin FALSE))
+					(assert (servicio_puntuacion ?servicio ?id))
+			)
+)
+
+
+(defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan
+			(preferencias_usuario (distancia_servicio $?servicios))
+			?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+			?id <- (send ?c get-Id)
+			?f <- (servicio_puntuacion ?servicio ?id)
+			=>
+			(bind $?servicios_vivienda_cerca (send ?c get-servicio_cerca))
+			(bind $?servicios_vivienda_media (send ?c get-servicio_media))
+			(if (is_in ?servicio $?servicios_vivienda_cerca)
+				then
+				(send ?viv put-justificaciones $?j "-El servicio ?servicio esta cerca")
+				(send ?viv put-puntuacion (+ ?p 2))
+				(retract ?f)
+			else (if (is_in ?servicio $?servicios_vivienda_media)
 					then
-					(send ?viv delete)
-					(bind ?fin TRUE)
+					(send ?viv put-justificaciones $?j "-El servicio ?servicio esta a media distancia")
+					(send ?viv put-puntuacion (+ ?p 1))
+					(retract ?f)
+					else
+					(retract ?f)
 				)
 			)
 )
@@ -608,7 +628,7 @@ else (format t "Sin sol por la tarde %n"))
 (deffunction is_in (?servicio $?servicios)
 		(bind ?is_inside FALSE)
 		(progn$ (?servicio_test $?servicios)
-			(if (eq ?servicio ?servicio_test)
+			(if (eq ?servicio (class ?servicio_test))
 				then
 				(bind ?is_inside TRUE)
 			)
