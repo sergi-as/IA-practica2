@@ -613,8 +613,8 @@ else (format t "Sin sol por la tarde %n"))
 (defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
 			(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
 			?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
-			?id <-(send ?c get-Id)
 			?f <-(precio_puntuacion ?id)
+			(test (eq ?id (send ?c get-Id)) )
 			=>
 			(bind ?precio (send ?c get-Precio_mensual ))
 			;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
