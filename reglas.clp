@@ -47,7 +47,7 @@
 
 ;; Imprime los datos de un contenido
 (defmessage-handler MAIN::Vivienda imprimir ()
-(printout t "----------------" crlf)
+(printout t "-----------------------------------" crlf)
 (format t "Vivienda con ID: %s %n" ?self:Id)
 (printout t crlf)
 (format t "Precio mensual: %g %n" ?self:Precio_mensual)
@@ -100,24 +100,24 @@ else (format t "No apto para mascotas %n"))
 (progn$ (?serv_media ?self:servicio_media)
 		(printout t (send ?serv_media get-Nombre_ser) crlf)
 )
-(if (eq ?self:Sol_man TRUE)then (format t "Con sol por la mañana %n")
+(if (eq ?self:Sol_man TRUE)then (format t "Con sol por la manana %n")
 else (format t "Sin sol por la mañana %n"))
 (printout t crlf)
 (if (eq ?self:Sol_tarde TRUE)then (format t "Con sol por la tarde %n")
 else (format t "Sin sol por la tarde %n"))
 (printout t crlf)
 ;;regla de coordenadas falta
-(printout t crlf "----------------" crlf)
+(printout t "-----------------------------------" crlf)
 )
 
 (defmessage-handler MAIN::Recomendacion imprimir ()
  (printout t (send ?self:contenido imprimir))
  (printout t "-----------------------------------" crlf)
- ;;;(format t "Nivel de recomendacion: %d %n" ?self:puntuacion)
- ;;;(printout t "Justificacion de la eleccion: " crlf)
- ;;;(progn$ (?curr-just ?self:justificaciones)
- ;;; (printout t ?curr-just crlf)
- ;;;)
+ (format t "Nivel de recomendacion: %d %n" ?self:puntuacion)
+ (printout t "Justificacion de la eleccion: " crlf)
+	 (progn$ (?curr-just ?self:justificaciones)
+	 (printout t ?curr-just crlf)
+ )
  (printout t crlf)
  (printout t "-----------------------------------" crlf)
 )
@@ -257,6 +257,18 @@ else (format t "Sin sol por la tarde %n"))
 	(multislot recomendaciones (type INSTANCE))
 )
 
+(deftemplate MAIN::Poco_Recomendables
+	(multislot recomendaciones (type INSTANCE))
+)
+
+(deftemplate MAIN::Recomendables
+	(multislot recomendaciones (type INSTANCE))
+)
+
+(deftemplate MAIN::Altamente_Recomendables
+	(multislot recomendaciones (type INSTANCE))
+)
+
 ;;; Reglas
 (defrule MAIN::initialRule "Regla inicial"
    	(declare (salience 10))
@@ -267,13 +279,14 @@ else (format t "Sin sol por la tarde %n"))
      	(printout t crlf)
    	(printout t"¡Bienvenido! A continuacion se le formularan una serie de preguntas para poder recomendarle un piso adecuada a sus preferencias." crlf)
    	(printout t crlf)
-    (focus recopilacion-usuario)
+    ;;(focus recopilacion-usuario)
 
 		;; para debugar la parte de proceso
-		;;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
+
+		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2)))
 		;;(focus recopilacion-preferencias)
-		;(assert (preferencias_usuario (precio_maximo 900) (precio_estricto FALSE) ) )
-		;(focus procesado)
+		(assert (preferencias_usuario (precio_maximo 9000) (precio_estricto FALSE) (distancia_servicio Bus) ) )
+		(focus procesado)
 )
 ;; Reglas set distancia, necesito una por cada tipo de servicio
 (defrule MAIN::setDistance "Primera regla que se ejecuta"
@@ -528,6 +541,14 @@ else (format t "Sin sol por la tarde %n"))
 	(make-instance (gensym) of Recomendacion (contenido ?viv))
 
 	)
+(defrule procesado::fact_trabajo "fact si el usuario trabaja en la ciudad y hay que valorar"
+	(declare (salience 10))
+	(Usuario (coorX ?x) (coorY ?y))
+	(test (!= -1 ?x))
+	=>
+	(assert (valora_trabajo))
+)
+
 
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
@@ -585,7 +606,7 @@ else (format t "Sin sol por la tarde %n"))
 
 (defrule procesado::no_bucle_infinito "Para evitar el bucle infinito en la siguiente funcion de puntua"
 			(preferencias_usuario (distancia_servicio $?servicios))
-			(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+			(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) )
 			=>
 			(bind ?id (send ?c get-Id))
 			(progn$ (?servicio $?servicios)
@@ -594,7 +615,17 @@ else (format t "Sin sol por la tarde %n"))
 )
 
 
-(defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan
+(deffunction is_in (?servicio $?servicios)
+		(bind ?is_inside FALSE)
+		(progn$ (?servicio_test $?servicios)
+			(if (eq ?servicio (class ?servicio_test))
+				then
+				(bind ?is_inside TRUE)
+			)
+		)
+		?is_inside
+)
+(defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 			(preferencias_usuario (distancia_servicio $?servicios))
 			?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
 			?id <- (send ?c get-Id)
@@ -618,6 +649,17 @@ else (format t "Sin sol por la tarde %n"))
 			)
 )
 
+
+;TODO
+;(defrule procesado::trabajo_cerca "Si el usuario trabaja en la ciudad,puntua mejor si esta cerca"
+;	(valora_trabajo)
+;	(Usuario (coorX ?x) (coorY ?y))
+;	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+;	=>
+
+
+;)
+
 (defrule procesado::genera_solucion "cambia de modulo"
 	(declare (salience -10))
 	=>
@@ -625,16 +667,7 @@ else (format t "Sin sol por la tarde %n"))
 	(focus generacion_sol)
 )
 
-(deffunction is_in (?servicio $?servicios)
-		(bind ?is_inside FALSE)
-		(progn$ (?servicio_test $?servicios)
-			(if (eq ?servicio (class ?servicio_test))
-				then
-				(bind ?is_inside TRUE)
-			)
-		)
-		?is_inside
-)
+
 
 ;;--------------------------------------------
 ;;modulo para generar la solucion
@@ -684,11 +717,45 @@ else (format t "Sin sol por la tarde %n"))
 		(assert (lista-rec-ordenada (recomendaciones $?resultado)))
 	)
 
+	(defrule generacion_sol::separa-listas "separa las listas en las 3 categorias"
+		(not (solucion_final))
+		(lista-rec-ordenada(recomendaciones $?lista))
+		=>
+		(bind $?poco (create$ ))
+		(bind $?norm (create$ ))
+		(bind $?mucho (create$ ))
+		; supongo que muy recomendadas es >150, se puede cambiar EZ
+		; TODO falta debugar esta regla
+		(bind ?i 1)
+		(while (<= ?i (length$ $?lista )) do
+			(bind ?rec (nth$ ?i $?lista ))
+			(if (<= 150 (send ?rec get-puntuacion)) then
+				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
+
+				else
+					(if (<= 100 (send ?rec get-puntuacion))then
+						(bind $?norm (insert$ $?norm (+ (length$ $?norm) 1) ?rec))
+						else
+							(bind $?poco (insert$ $?poco (+ (length$ $?poco) 1) ?rec))
+					)
+			)
+			(bind ?i (+ ?i 1))
+		)
+		(assert (solucion_final))
+		(assert (Poco_Recomendables (recomendaciones $?poco)))
+		(assert (Recomendables (recomendaciones $?norm)))
+		(assert (Altamente_Recomendables (recomendaciones $?mucho)))
+
+	)
+
+
 	(defrule generacion_sol::muestra_resultado
 		(declare (salience -10))
 			=>
 		(focus mostrar_resultados)
 		)
+
+
 
 ;;--------------------------------------------
 ;;modulo final
@@ -696,15 +763,30 @@ else (format t "Sin sol por la tarde %n"))
 
 
 (defrule mostrar_resultados::muestra
-	(lista-rec-ordenada (recomendaciones $?viv))
+	(Poco_Recomendables (recomendaciones $?poco))
+	(Recomendables (recomendaciones $?norm))
+	(Altamente_Recomendables (recomendaciones $?mucho))
 	(Usuario (nombre ?nombre))
 	(not (final))
 		=>
 	(printout t crlf)
 	(format t "Estos son los pisos que se adaptan a sus necesidades, %s" ?nombre )
 	(printout t crlf)
-	(progn$ (?v $?viv)
-		(printout t (send ?v imprimir))
+	(progn$ (?r $?poco)
+		(printout t "Viviendas que no cumplen todas sus preferencias, pero le podrian interesar: " crlf)
+		(printout t (send ?r imprimir))
+		(printout t crlf)
+		(printout t crlf)
+	)
+	(progn$ (?r $?norm)
+		(printout t "Viviendas que cumplen todas sus preferencias: " crlf)
+		(printout t (send ?r imprimir))
+		(printout t crlf)
+		(printout t crlf)
+	)
+	(progn$ (?r $?mucho)
+		(printout t "Viviendas que cumplen todas sus preferencias, y tienen extras que creemos que le interesaran: " crlf)
+		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
 	)
