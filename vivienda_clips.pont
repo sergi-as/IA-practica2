@@ -306,6 +306,34 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
+	(defclass Centro+de+salud
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Estadio+de+deportes
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Hipermercado
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Ocio+nocturno
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Supermercado
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Zona+comercial
+		(is-a Servicio)
+		(role concrete))
+
+	(defclass Zona+verde
+		(is-a Servicio)
+		(role concrete))
+
 (defclass Coordenadas
 	(is-a USER)
 	(role concrete)
