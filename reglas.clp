@@ -245,6 +245,9 @@ else (format t "Sin sol por la tarde %n"))
 	(slot num_dormitorios_dobles (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
 	(multislot distancia_servicio (type SYMBOL))
+	(multislot preferencias_vivienda (type SYMBOL))
+	(slot tipo_vivienda (type SYMBOL))
+	(slot altura_vivienda (type SYMBOL))
 )
 
 ;;; Template para una lista de recomendaciones sin orden
@@ -417,6 +420,8 @@ else (format t "Sin sol por la tarde %n"))
 	(bind ?precio_maximo (pregunta-numerica "¿Cual es el precio maximo que quiere gastar? " 1 999999999))
 	(assert (preferencias_usuario (precio_maximo ?precio_maximo)))
 	(assert (servicios_pref ask))
+	(assert (preferencias_viv ask))
+	(assert (tipo_viv ask))
 )
 
 (defrule recopilacion-preferencias::establecer-precio_estricto "Establece si el precio maximo a gastar del usuario es estricto o no"
@@ -468,6 +473,30 @@ else (format t "Sin sol por la tarde %n"))
 	(retract ?hecho)
     (modify ?pref (distancia_servicio $?respuesta))
 )
+
+(defrule recopilacion-preferencias::establecer-preferencias_vivienda "Establece los complementos que se quieren para una vivienda"
+		?hecho <- (preferencias_viv ask)
+		?pref <- (preferencias_usuario)
+		=>
+		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas))
+		(bind $?escogido (pregunta-multirespuesta "Escoja las preferencias que deben estar (o 0 en el caso que no haya ninguna): " $?nom-preferencias))
+		(assert (servicios_pref TRUE))
+	    (bind $?respuesta (create$ ))
+		(loop-for-count (?i 1 (length$ $?escogido)) do
+			(bind ?curr-index (nth$ ?i $?escogido))
+	        (if (= ?curr-index 0) then (assert (servicios_pref FALSE)))
+			(bind ?curr-servicio (nth$ ?curr-index $?nom-preferencias))
+			(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
+		)
+		(retract ?hecho)
+	    (modify ?pref (preferencias_viv $?respuesta))
+)
+
+(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda se busca"
+
+)
+
+
 ;(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
 	;?f <- (falta preferencias)
 	;?g <- (preferencias_usuario)
