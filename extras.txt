@@ -31,9 +31,22 @@ Parcialmente adecuado: No se cumplen 1 o 2 restricciones (pero por poco) //Se ti
 Adecuado: Cumple requisitos
 Muy recomendable: Cumple requisitos + extras  //Se tienen que decir los extras que tiene
 ---------------------------------------------------------------------------------------------
-Atributos que se pueden a�adir a viviendas:
+Atributos que se pueden añadir a viviendas:
 Seguridad
 Reformada recientemente
 Ascensor
-Numero de ba�os
-Tama�os de dormitorios (lo dice en enunciado)
+Numero de baños
+Tamaños de dormitorios (lo dice en enunciado)
+TV
+WIFI
+Accesible
+Fumadores
+Portero
+
+Servicios que se pueden añadir:
+Restaurante
+Iglesia
+Jeriatrico
+Parque de atracciones
+Tren
+
