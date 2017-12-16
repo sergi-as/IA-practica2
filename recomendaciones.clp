@@ -13,6 +13,10 @@
 			(multislot justificaciones
 				(type STRING)
 				(create-accessor read-write))
+      (slot fallos
+        (type INTEGER)
+        (default 0)
+        (create-accessor read-write))
 		)
 
     (defclass Poco_Recomendables

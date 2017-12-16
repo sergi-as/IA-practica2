@@ -616,6 +616,14 @@ else (format t "Sin sol por la tarde %n"))
 			)
 )
 
+(defrule procesado::fact_puntuacion_edad_tipo "crea los facts para las puntuaciones por edad y tipo de familia"
+			(declare (salience 10))
+			(fin_fil)
+			(object (is-a Recomendacion) (contenido ?c))
+			=>
+			(assert (puntua_edad_tipo (send ?c get-Id)))
+)
+
 (defrule procesado::fact_puntuacion_general "crea facts que puntuan viviendas independientemente del usuario"
 	(declare (salience 10))
 	(fin_fil)
@@ -637,7 +645,7 @@ else (format t "Sin sol por la tarde %n"))
 			(if (eq ?pe TRUE) then
 				(send ?viv delete)
 				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
-					else (if (<= ?precio (* 1.5 ?pm)) then
+					else (if (<= ?precio (* 1.2 ?pm)) then
 						(assert (precio_puntuacion (send ?c get-Id) ))
 						else
 							(send ?viv delete)
@@ -681,7 +689,7 @@ else (format t "Sin sol por la tarde %n"))
 			)
 
 (defrule procesado::puntua_capacidad "se suman puntos si el piso tiene capacidad extra"
-	?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+	?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j) )
 	 ?f<- (pdorm_extra ?id)
 	 (test (eq ?id (send ?c get-Id)) )
 	 =>
@@ -692,21 +700,22 @@ else (format t "Sin sol por la tarde %n"))
 
 (defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
 			(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
-			?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+			?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j) (fallos ?fe))
 			?f <-(precio_puntuacion ?id)
 			(test (eq ?id (send ?c get-Id)) )
 			=>
 			(bind ?precio (send ?c get-Precio_mensual ))
 			;si el precio esta entre pm y 1.5* pm, entonces se resta puntuacion
 			(send ?viv put-justificaciones $?j "-	El precio es alto")
-			(send ?viv put-puntuacion (- ?p (* 100 (- (/ ?precio ?pm) 1) )) )
+			(send ?viv put-puntuacion (- ?p 7) )
+			(send ?viv put-fallos (+ ?fe 1))
 			(retract ?f)
 )
 
 
 
 (defrule procesado::transporte_cerca "si el usuario trabaja/estudia y no tiene coche hace falta transporte cerca"
-	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j) (fallos ?fe))
 	?f<-(puntua_transporte ?id)
 	(test (eq ?id (send ?c get-Id)))
 	=>
@@ -722,6 +731,7 @@ else (format t "Sin sol por la tarde %n"))
 		else
 		(send ?viv put-justificaciones $?j "- No hay transporte publico cerca para trabajar/estudiar")
 		(send ?viv put-puntuacion (- ?p 7) )
+		(send ?viv put-fallos (+ ?fe 1))
 	)
 	(retract ?f)
 )
@@ -732,7 +742,7 @@ else (format t "Sin sol por la tarde %n"))
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 				;(preferencias_usuario (distancia_servicio $?servicios))
 				?ser <-(object (is-a Servicio) )
-			  ?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+			  ?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j) (fallos ?fe))
 				?f <- (servicio_pref_puntuacion ?cls ?id )
 				(test (eq ?cls (class ?ser)))
 				(test (eq ?id (send ?c get-Id)))
@@ -744,7 +754,7 @@ else (format t "Sin sol por la tarde %n"))
 
 						(if (eq (class ?ser) (class ?media))then
 						(bind ?contador TRUE)
-						(send ?viv put-puntuacion (+ ?p 1))
+						(send ?viv put-puntuacion (+ ?p 5))
 						(send ?viv put-justificaciones $?j (str-cat "+ Servicio del tipo " (class ?media) " a distancia media") )
 					)
 				)
@@ -755,14 +765,15 @@ else (format t "Sin sol por la tarde %n"))
 						(if (eq (class ?ser) (class ?cerca))then
 						;;(printout t "LIKE WTF " ?id crlf crlf)
 						(bind ?contador TRUE)
-						(send ?viv put-puntuacion (+ ?p 2))
+						(send ?viv put-puntuacion (+ ?p 7))
 						(send ?viv put-justificaciones $?j (str-cat "+ Servicio del tipo " (class ?cerca) " cerca") )
 					)
 				)
 
 				(if (eq ?contador FALSE) then
-					(send ?viv put-puntuacion (- ?p 3))
+					(send ?viv put-puntuacion (- ?p 7))
 					(send ?viv put-justificaciones $?j (str-cat "- Servicio del tipo " (class ?ser) " lejos") )
+					(send ?viv put-fallos (+ ?fe 1))
 				)
 				(retract ?f)
 )
@@ -790,7 +801,62 @@ else (format t "Sin sol por la tarde %n"))
 
 )
 
+(defrule procesado::puntua_edad_tipo_us "Puntua caracteristicas deducidas por la edad y tipo de familia"
+		(Usuario (edad ?e) (tipo ?t))
+		?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+		?f<- (puntua_edad_tipo ?id)
+		(test (eq ?id (send ?c get-Id)))
+		=>
+		;puntuacion de la vivienda en si
+		(bind $?ljust $?j)
+		(bind ?pextra ?p)
+		(if (and (send ?c get-Piscina) (eq ?t familia)) then
+			(bind ?pextra (+ ?p 2))
+			(bind $?ljust $?ljust "+ Piscina para la familia" )
+		)
+		;puntuacion de los servicios cercanos
+		(progn$ (?ser (send ?c get-servicio_cerca) )
+			(if (and (eq (class ?c) ocio+nocturno) (<= ?e 30)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Ocio nocturno cerca" )
+			)
+			(if (and (or (eq (class ?c) Supermercado) (eq (class ?c) Zona+comercial) ) (or (eq ?t familia) (eq ?t pareja)))  then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Super/centro comercial cerca" )
+			)
+			(if (and (eq (class ?c) Centro+de+salud) (>= ?e 65)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Centro de salud cerca" )
+			)
+			(if (and (eq (class ?c) colegio) (eq ?t familia)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Colegio cerca" )
+			)
 
+		)
+		(progn$ (?ser (send ?c get-servicio_media) )
+			(if (and (eq (class ?c) ocio+nocturno) (<= ?e 30)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Ocio nocturno a distancia media" )
+			)
+			(if (and (or (eq (class ?c) Supermercado) (eq (class ?c) Zona+comercial) ) (or (eq ?t familia) (eq ?t pareja))) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Super/centro comercial a distancia media" )
+			)
+			(if (and (eq (class ?c) Centro+de+salud) (>= ?e 65))then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Centro de salud a distancia media" )
+			)
+			(if (and (eq (class ?c) colegio) (eq ?t familia)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Colegio a distancia media" )
+			)
+		)
+
+		(send ?viv put-puntuacion ?pextra)
+		(send ?viv put-justificaciones $?ljust)
+		(retract ?f)
+)
 
 (defrule procesado::puntua_car_general "Puntua caracteristicas generales de las viviendas"
 		?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
@@ -904,16 +970,20 @@ else (format t "Sin sol por la tarde %n"))
 		(bind ?i 1)
 		(while (<= ?i (length$ $?lista )) do
 			(bind ?rec (nth$ ?i $?lista ))
-			(if (<= 150 (send ?rec get-puntuacion)) then
+
+			(if (<= 125 (send ?rec get-puntuacion)) then
 				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
 
 				else
-					(if (<= 100 (send ?rec get-puntuacion))then
+					(if (eq 0 (send ?rec get-fallos))then
 						(bind $?norm (insert$ $?norm (+ (length$ $?norm) 1) ?rec))
 						else
-							(bind $?poco (insert$ $?poco (+ (length$ $?poco) 1) ?rec))
+							(if (>=  3 (send ?rec get-fallos) ) then
+								(bind $?poco (insert$ $?poco (+ (length$ $?poco) 1) ?rec))
+								)
 					)
 			)
+
 			(bind ?i (+ ?i 1))
 		)
 		(assert (solucion_final))

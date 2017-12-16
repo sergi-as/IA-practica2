@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------
 Marcadas por enunciado:
-Personas jovenes: Servicio ocio cerca ++;
-Familias/Parejas: Servicio Hipermercado cerca ++;
-Ancianos: Servicio centro salud o supermercado cerca ++;
-Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
+[hecho] Personas jovenes: Servicio ocio cerca ++;
+[hecho] Familias/Parejas: Servicio Hipermercado cerca ++;
+[hecho] Ancianos: Servicio centro salud o supermercado cerca ++;
+[hecho considerando familia como tiene hijos]Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
 [hecho] Si trabaja/estudia Servicio transporte publico cerca ++;
 
 -----------------------------------------------------------------------
@@ -15,7 +15,7 @@ vivienda unifamiliar si hay mas gente;
 zonas verdes no muy lejos ++;
 servicios proximos ++;
 si no hay servicios molestos ++;
-
+---------------------------------------------------------------------
 Extras que he pensado:
 Si precio menor ++;
 [hecho] si tiene mas habitaciones ++;
