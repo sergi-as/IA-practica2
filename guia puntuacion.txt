@@ -1,0 +1,13 @@
+Preferncias usuario:
+  +5
+  +7
+  -5
+  -7
+
+Extras:
+  +1
+  +2
+
+Si una preferencia no se cumple se suma a un contador c
+  si 1<= c <= 3 es poco recomendado
+  

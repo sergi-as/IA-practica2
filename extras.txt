@@ -4,7 +4,7 @@ Personas jovenes: Servicio ocio cerca ++;
 Familias/Parejas: Servicio Hipermercado cerca ++;
 Ancianos: Servicio centro salud o supermercado cerca ++;
 Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
-Si trabaja/estudia Servicio transporte publico cerca ++;
+[hecho] Si trabaja/estudia Servicio transporte publico cerca ++;
 
 -----------------------------------------------------------------------
 [hecho]
@@ -49,4 +49,3 @@ Iglesia
 Jeriatrico
 Parque de atracciones
 Tren
-

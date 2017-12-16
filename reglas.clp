@@ -286,7 +286,8 @@ else (format t "Sin sol por la tarde %n"))
 
 		;; para debugar la parte de proceso
 
-		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
+		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
+		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (posee_vehiculo FALSE) ))
 		;;(focus recopilacion-preferencias)
 		(assert (preferencias_usuario (precio_maximo 10000) (num_dormitorios_dobles 1) (precio_estricto TRUE) (distancia_servicio Bus colegio) ) )
 		(focus procesado)
@@ -572,19 +573,34 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (fil_bajo (send ?viv get-Id)))
 	(assert (fil_cap (send ?viv get-Id)))
 	)
+
+	(defrule procesado::unifica_filtros "unifiica las variables de filtro para simplificar el codigo posterior"
+		(declare (salience 5))
+		(not (or (fil_precio ?) (fil_bajo ?) (fil_cap ?)))
+		=>
+		(assert (fin_fil))
+
+	)
+
 (defrule procesado::fact_trabajo "fact si el usuario trabaja en la ciudad y hay que valorar"
 	(declare (salience 10))
+	(fin_fil)
 	(Usuario (coorX ?x) (coorY ?y))
 	(test (!= -1 ?x))
 	=>
 	(assert (valora_trabajo))
 )
 
-(defrule procesado::unifica_filtros "unifiica las variables de filtro para simplificar el codigo posterior"
-	(declare (salience 5))
-	(not (or (fil_precio ?) (fil_bajo ?) (fil_cap ?)))
+
+
+(defrule procesado::fact_transporte "si el usuario no tiene coche necesita transporte cerca"
+	(declare (salience 10))
+	(fin_fil)
+	(Usuario (posee_vehiculo ?pv) )
+	(object (is-a Recomendacion) (contenido ?c))
+	(test (eq ?pv FALSE))
 	=>
-	(assert (fin_fil))
+	(assert (puntua_transporte (send ?c get-Id)))
 
 )
 
@@ -689,7 +705,26 @@ else (format t "Sin sol por la tarde %n"))
 
 
 
-
+(defrule procesado::transporte_cerca "si el usuario trabaja/estudia y no tiene coche hace falta transporte cerca"
+	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+	?f<-(puntua_transporte ?id)
+	(test (eq ?id (send ?c get-Id)))
+	=>
+	(bind ?found FALSE)
+	(progn$ (?ser (send ?c get-servicio_cerca))
+		(if (or (eq (class ?ser) Bus) (eq (class ?ser) Metro) ) then
+			(bind ?found TRUE)
+		 )
+	)
+	(if ?found then
+		(send ?viv put-justificaciones $?j "+ Transporte publico cerca para trabajar/estudiar")
+		(send ?viv put-puntuacion (+ ?p 7) )
+		else
+		(send ?viv put-justificaciones $?j "- No hay transporte publico cerca para trabajar/estudiar")
+		(send ?viv put-puntuacion (- ?p 7) )
+	)
+	(retract ?f)
+)
 
 
 
