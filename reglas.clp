@@ -282,13 +282,13 @@ else (format t "Sin sol por la tarde %n"))
      	(printout t crlf)
    	(printout t"¡Bienvenido! A continuacion se le formularan una serie de preguntas para poder recomendarle un piso adecuada a sus preferencias." crlf)
    	(printout t crlf)
-    ;;(focus recopilacion-usuario)
+    ;(focus recopilacion-usuario)
 
 		;; para debugar la parte de proceso
 
 		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
 		;;(focus recopilacion-preferencias)
-		(assert (preferencias_usuario (precio_maximo 9000) (precio_estricto FALSE) (distancia_servicio Bus) ) )
+		(assert (preferencias_usuario (precio_maximo 10000) (num_dormitorios_dobles 1) (precio_estricto TRUE) (distancia_servicio Bus colegio) ) )
 		(focus procesado)
 )
 ;; Reglas set distancia, necesito una por cada tipo de servicio
@@ -390,8 +390,8 @@ else (format t "Sin sol por la tarde %n"))
 	?g <- (Usuario (coorX ?x)(coorY ?y))
 	?t <- (preguntacoord ask)
 	=>
-	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 2000))
-	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 2000))
+	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 10000))
+	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 10000))
 	(modify ?g (coorX ?x)(coorY ?y) )
 	(retract ?t)
 	(assert (preguntacoord done))
@@ -436,7 +436,7 @@ else (format t "Sin sol por la tarde %n"))
 	?g <- (preferencias_usuario (num_dormitorios_dobles ?num_dormitorios_dobles))
 	(test (< ?num_dormitorios_dobles 0))
 	=>
-	(bind ?num_dormitorios_dobles (pregunta-numerica "¿Cual es el numero de dormitorios dobles deseado? " 1 20))
+	(bind ?num_dormitorios_dobles (pregunta-numerica "¿Cual es el numero de dormitorios dobles deseado? " 0 20))
 	(modify ?g (num_dormitorios_dobles ?num_dormitorios_dobles))
 )
 
@@ -489,12 +489,12 @@ else (format t "Sin sol por la tarde %n"))
 			(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
 		)
 		(retract ?hecho)
-	    (modify ?pref (preferencias_viv $?respuesta))
+	    (modify ?pref (preferencias_vivienda $?respuesta))
 )
 
-(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda se busca"
-
-)
+;(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda se busca"
+;
+;)
 
 
 ;(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
@@ -568,9 +568,9 @@ else (format t "Sin sol por la tarde %n"))
 	?viv<-(object (is-a Vivienda))
 	=>
 	(make-instance (gensym) of Recomendacion (contenido ?viv))
-  (assert (fil_precio))
-	(assert (fil_bajo))
-	(assert (fil_cap))
+  (assert (fil_precio (send ?viv get-Id)))
+	(assert (fil_bajo (send ?viv get-Id)))
+	(assert (fil_cap (send ?viv get-Id)))
 	)
 (defrule procesado::fact_trabajo "fact si el usuario trabaja en la ciudad y hay que valorar"
 	(declare (salience 10))
@@ -580,9 +580,17 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (valora_trabajo))
 )
 
+(defrule procesado::unifica_filtros "unifiica las variables de filtro para simplificar el codigo posterior"
+	(declare (salience 5))
+	(not (or (fil_precio ?) (fil_bajo ?) (fil_cap ?)))
+	=>
+	(assert (fin_fil))
+
+)
+
 (defrule procesado::fact_cerca_preferencia "crea los facts para los servicios que el usuario quiere cerca"
 			(declare (salience 10))
-			(not (or (fil_precio) (fil_bajo) (fil_cap)))
+			(fin_fil)
 			(preferencias_usuario (distancia_servicio $?servicios))
 			(object (is-a Recomendacion) (contenido ?c))
 			=>
@@ -592,11 +600,21 @@ else (format t "Sin sol por la tarde %n"))
 			)
 )
 
+(defrule procesado::fact_puntuacion_general "crea facts que puntuan viviendas independientemente del usuario"
+	(declare (salience 10))
+	(fin_fil)
+	(object (is-a Recomendacion) (contenido ?c))
+	=>
+	(assert (puntua_general (send ?c get-Id)))
+)
+
+
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
 	;;aqui supongo que precio no fijo es +50%
-	?f<-(fil_precio)
 	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
 	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
+	?f<-(fil_precio ?id)
+	(test (eq ?id (send ?c get-Id)) )
 		=>
 		(bind ?precio (send ?c get-Precio_mensual ))
 		(if (> ?precio ?pm) then
@@ -614,9 +632,10 @@ else (format t "Sin sol por la tarde %n"))
 	)
 
 (defrule procesado::filtra_preciobajo "Se eliminan los pisos con precio menor al minimo"
-		?f<-(fil_bajo)
 		(preferencias_usuario (precio_minimo ?pm) )
 		?viv<-(object (is-a Recomendacion) (contenido ?c))
+		?f<-(fil_bajo ?id)
+		(test (eq ?id (send ?c get-Id)) )
 			=>
 			(bind ?precio (send ?c get-Precio_mensual ))
 			(if (< ?precio ?pm) then
@@ -627,17 +646,33 @@ else (format t "Sin sol por la tarde %n"))
 		)
 
 (defrule procesado::filtra_capacidad "Se eliminan los pisos con capacidad menor a las personas que van a vivir"
- 			?f<- (fil_cap)
+;tambien elimina viviendas que no cumplan la exigencia de dormitorios dobles y puntua si tienen mas de los necesarios
 			(Usuario (tam_familia_grupo ?t) )
+			(preferencias_usuario (num_dormitorios_dobles ?dd))
 			?viv<-(object (is-a Recomendacion) (contenido ?c))
+			 ?f<- (fil_cap ?id)
+			 (test (eq ?id (send ?c get-Id)) )
 				=>
 				(bind ?capacidad (+ (send ?c get-Dormi_simple ) (* 2 (send ?c get-Dormi_doble ) ) ) )
-				(if (< ?capacidad ?t) then
+				(if (or (< ?capacidad ?t) (< (send ?c get-Dormi_doble ) ?dd )) then
 					(send ?viv delete)
 					(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+					else (if (> ?capacidad ?t) then
+								(assert (pdorm_extra (send ?c get-Id) ))
+							 )
 				)
 				(retract ?f)
 			)
+
+(defrule procesado::puntua_capacidad "se suman puntos si el piso tiene capacidad extra"
+	?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+	 ?f<- (pdorm_extra ?id)
+	 (test (eq ?id (send ?c get-Id)) )
+	 =>
+	 (send ?viv put-justificaciones $?j "+ La vivienda dispone de dormitorios extra")
+	 (send ?viv put-puntuacion (+ ?p 2 ) )
+	 (retract ?f)
+)
 
 (defrule procesado::puntua_precio "si hace falta quitar puntos por precio"
 			(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
@@ -655,16 +690,7 @@ else (format t "Sin sol por la tarde %n"))
 
 
 
-(deffunction is_in (?servicio $?servicios)
-		(bind ?is_inside FALSE)
-		(progn$ (?servicio_test $?servicios)
-			(if (eq ?servicio (class ?servicio_test))
-				then
-				(bind ?is_inside TRUE)
-			)
-		)
-		?is_inside
-)
+
 
 
 
@@ -727,6 +753,51 @@ else (format t "Sin sol por la tarde %n"))
 	)
 	(retract ?fact)
 
+)
+
+
+
+(defrule procesado::puntua_car_general "Puntua caracteristicas generales de las viviendas"
+		?viv<-(object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+		?f<- (puntua_general ?id)
+		(test (eq ?id (send ?c get-Id)))
+		=>
+		(bind $?ljust $?j)
+		(bind ?pextra ?p)
+		(if (and (send ?c get-Sol_man) (send ?c get-Sol_tarde)) then
+			(bind ?pextra (+ ?pextra 2))
+			(bind $?ljust $?ljust "+ Vivienda soleada")
+		)
+		(if (eq (send ?c get-Tipo) familiar) then
+ 			(bind ?pextra (+ ?pextra 2))
+			(bind $?ljust $?ljust "+ Vivienda unifamiliar")
+		)
+		(if (eq (send ?c get-Altura_piso) atico) then
+ 			(bind ?pextra (+ ?pextra 2))
+			(bind $?ljust $?ljust "+ Vivienda es un atico")
+		)
+		(if (send ?c get-Terraza) then
+			(bind ?pextra (+ ?pextra 2))
+			(bind $?ljust $?ljust "+ Tiene terraza")
+		)
+		;defino la densidad de servicios como 2*n.servicios cerca + n.servicios media
+		(bind ?densidad 0)
+		(progn$ (?ser (send ?c get-servicio_cerca))
+			(bind ?densidad (+ ?densidad 2))
+			(if (eq (class ?ser) Zona+verde) then
+				(bind ?pextra (+ ?pextra 2))
+				(bind $?ljust $?ljust "+ Zona verde cerca")
+			)
+		)
+		(progn$ (?u (send ?c get-servicio_media)) (bind ?densidad (+ ?densidad 1)))
+		;numero arbitrario para la densidad
+		(if (>= ?densidad 20) then
+			(bind ?pextra (+ ?pextra 2))
+			(bind $?ljust $?ljust "+ Bastantes servicios a menos de 1km")
+		)
+		(send ?viv put-puntuacion ?pextra)
+		(send ?viv put-justificaciones $?ljust)
+		(retract ?f)
 )
 
 (defrule procesado::genera_solucion "cambia de modulo"
@@ -838,23 +909,28 @@ else (format t "Sin sol por la tarde %n"))
 	(Usuario (nombre ?nombre))
 	(not (final))
 		=>
-	(printout t crlf)
+	(printout t "***************************************************" crlf)
 	(format t "Estos son los pisos que se adaptan a sus necesidades, %s" ?nombre )
 	(printout t crlf)
+	(printout t "***************************************************" crlf)
+	(printout t "Viviendas que no cumplen todas sus preferencias, pero le podrian interesar: " crlf)
+	(printout t "***************************************************" crlf)
 	(progn$ (?r $?poco)
-		(printout t "Viviendas que no cumplen todas sus preferencias, pero le podrian interesar: " crlf)
+
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
 	)
+	(printout t "***************************************************" crlf)
+	(printout t "Viviendas que cumplen todas sus preferencias: " crlf)
 	(progn$ (?r $?norm)
-		(printout t "Viviendas que cumplen todas sus preferencias: " crlf)
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)
 	)
+	(printout t "***************************************************" crlf)
+  (printout t "Viviendas que cumplen todas sus preferencias, y tienen extras que creemos que le interesaran: " crlf)
 	(progn$ (?r $?mucho)
-		(printout t "Viviendas que cumplen todas sus preferencias, y tienen extras que creemos que le interesaran: " crlf)
 		(printout t (send ?r imprimir))
 		(printout t crlf)
 		(printout t crlf)

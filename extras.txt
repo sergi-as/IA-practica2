@@ -1,12 +1,13 @@
 ----------------------------------------------------------------------
 Marcadas por enunciado:
 Personas jovenes: Servicio ocio cerca ++;
-Familias/Parejas: Servicio Hipermercado cerca ++; 
+Familias/Parejas: Servicio Hipermercado cerca ++;
 Ancianos: Servicio centro salud o supermercado cerca ++;
 Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
 Si trabaja/estudia Servicio transporte publico cerca ++;
 
 -----------------------------------------------------------------------
+[hecho]
 Extras para sumar cuando no son pedidas por usuario(marcadas en enunciado):
 Piso Soleado++;
 atico > entresuelo;
@@ -17,10 +18,10 @@ si no hay servicios molestos ++;
 
 Extras que he pensado:
 Si precio menor ++;
-si tiene mas habitaciones ++;
+[hecho] si tiene mas habitaciones ++;
 si mas superficie ++;
-si tiene terraza, balcon o algun otro atributo ademas de los que ha pedido ++;
-Ancianos -> servicio molesto servicio ocio y estadio de deportes 
+[hecho]si tiene terraza, balcon o algun otro atributo ademas de los que ha pedido ++;
+Ancianos -> servicio molesto servicio ocio y estadio de deportes
 Si un servicio que ha pedido a media esta en cerca ++;
 Jovenes/Adultos(no viejos) Zona comercial ++???
 Jovenes/Adultos(no viejos) estadio de deportes++ ????
@@ -30,11 +31,9 @@ Parcialmente adecuado: No se cumplen 1 o 2 restricciones (pero por poco) //Se ti
 Adecuado: Cumple requisitos
 Muy recomendable: Cumple requisitos + extras  //Se tienen que decir los extras que tiene
 ---------------------------------------------------------------------------------------------
-Atributos que se pueden añadir a viviendas:
+Atributos que se pueden aï¿½adir a viviendas:
 Seguridad
 Reformada recientemente
 Ascensor
-Numero de baños
-Tamaños de dormitorios (lo dice en enunciado)
-
-
+Numero de baï¿½os
+Tamaï¿½os de dormitorios (lo dice en enunciado)
