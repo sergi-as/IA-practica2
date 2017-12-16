@@ -935,84 +935,84 @@ else (format t "Sin sol por la tarde %n"))
 			(if (eq TRUE (send ?c get-Terraza))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ posee Terraza")
+				(bind $?justificacions $?justificacions "+ Posee Terraza")
 			)
 		else (if (eq ?preferencia Soleado_Tarde)
 			then
 			(if (eq TRUE (send ?c get-Sol_tarde))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ da el sol por la tarde")
+				(bind $?justificacions $?justificacions "+ Da el sol por la tarde")
 			)
 		else (if (eq ?preferencia Soleado_mañana)
 			then
 			(if (eq TRUE (send ?c get-Sol_man))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ da el sol por la mañana")
+				(bind $?justificacions $?justificacions "+ Da el sol por la mañana")
 			)
 		else (if (eq ?preferencia Piscina)
 			then
 			(if (eq TRUE (send ?c get-Piscina))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ tiene piscina")
+				(bind $?justificacions $?justificacions "+ Tiene piscina")
 			)
 		else (if (eq ?preferencia Amueblado)
 			then
 			(if (eq TRUE (send ?c get-Amueblada))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ viene amueblada")
+				(bind $?justificacions $?justificacions "+ Viene amueblada")
 			)
 		else (if (eq ?preferencia Vistas)
 			then
 			(if (eq TRUE (send ?c get-vistas))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ posee vistas")
+				(bind $?justificacions $?justificacions "+ Posee vistas")
 			)
 		else (if (eq ?preferencia Aire_acondicionado)
 			then
 			(if (eq TRUE (send ?c get-Aire))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ tiene aire acondicionado")
+				(bind $?justificacions $?justificacions "+ Tiene aire acondicionado")
 			)
 		else (if (eq ?preferencia Electrodomesticos)
 			then
 			(if (eq TRUE (send ?c get-Electrodomesticos))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ viene con electrodomesticos")
+				(bind $?justificacions $?justificacions "+ Viene con electrodomesticos")
 			)
 		else (if (eq ?preferencia Calefaccion)
 			then
 			(if (eq TRUE (send ?c get-Calefaccion))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ posee calefaccion")
+				(bind $?justificacions $?justificacions "+ Posee calefaccion")
 			)
 		else (if (eq ?preferencia Balcon)
 			then
 			(if (eq TRUE (send ?c get-Balcon))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ posee balcon")
+				(bind $?justificacions $?justificacions "+ Posee balcon")
 			)
 		else (if (eq ?preferencia Garaje)
 			then
 			(if (eq TRUE (send ?c get-Garaje))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ posee garaje")
+				(bind $?justificacions $?justificacions "+ Posee garaje")
 			)
 		else (if (eq ?preferencia Mascotas)
 			then
 			(if (eq TRUE (send ?c get-Mascotas))
 			then
 				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ se pueden tener mascotas")
+				(bind $?justificacions $?justificacions "+ Se pueden tener mascotas")
 			)
 		))))))))))))
 		(send ?c put-puntuacion ?pextra)
