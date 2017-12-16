@@ -282,15 +282,15 @@ else (format t "Sin sol por la tarde %n"))
      	(printout t crlf)
    	(printout t"¡Bienvenido! A continuacion se le formularan una serie de preguntas para poder recomendarle un piso adecuada a sus preferencias." crlf)
    	(printout t crlf)
-    ;(focus recopilacion-usuario)
+    (focus recopilacion-usuario)
 
 		;; para debugar la parte de proceso
 
 		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
-		(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (posee_vehiculo FALSE) ))
+		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (posee_vehiculo FALSE) ))
 		;;(focus recopilacion-preferencias)
-		(assert (preferencias_usuario (precio_maximo 10000) (num_dormitorios_dobles 1) (precio_estricto TRUE) (distancia_servicio Bus colegio) ) )
-		(focus procesado)
+		;(assert (preferencias_usuario (precio_maximo 10000) (num_dormitorios_dobles 1) (precio_estricto TRUE) (distancia_servicio Bus colegio) ) )
+		;(focus procesado)
 )
 ;; Reglas set distancia, necesito una por cada tipo de servicio
 (defrule MAIN::setDistance "Primera regla que se ejecuta"
@@ -481,11 +481,11 @@ else (format t "Sin sol por la tarde %n"))
 		=>
 		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas))
 		(bind $?escogido (pregunta-multirespuesta "Escoja las preferencias que deben estar (o 0 en el caso que no haya ninguna): " $?nom-preferencias))
-		(assert (preferencias_viv TRUE))
+		(assert (servicios_pref TRUE))
 	    (bind $?respuesta (create$ ))
 		(loop-for-count (?i 1 (length$ $?escogido)) do
 			(bind ?curr-index (nth$ ?i $?escogido))
-	        (if (= ?curr-index 0) then (assert (preferencias_viv FALSE)))
+	        (if (= ?curr-index 0) then (assert (servicios_pref FALSE)))
 			(bind ?curr-servicio (nth$ ?curr-index $?nom-preferencias))
 			(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
 		)
@@ -493,20 +493,9 @@ else (format t "Sin sol por la tarde %n"))
 	    (modify ?pref (preferencias_vivienda $?respuesta))
 )
 
-(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda que se busca"
-		?hecho <- (tipo_viv ask)
-		?pref <- (preferencias_usuario)
-		=>
-		(bind $?nom-preferencias (create$ piso duplex familiar))
-		(bind ?tipo_vivienda (pregunta-indice "Que tipo de piso se ajusta a tus gustos?" $?nom-preferencias))
-		(bind $?nom-altura (create$ planta_baja entresuelo primero segundo tercero cuarto quinto sexto septimo octavo noveno atico))
-		(bind ?altura (pregunta-indice "A que altura le gustaria que estuviese?" $?nom-altura))
-		(bind ?respuesta_vivienda (nth$ ?tipo_vivienda $?nom-preferencias))
-		(bind ?respuesta_altura (nth$ ?altura $?nom-altura))
-		(retract ?hecho)
-		(modify ?pref (tipo_vivienda ?respuesta_vivienda))
-		(modify ?pref (altura_vivienda ?respuesta_altura))
-)
+;(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda se busca"
+;
+;)
 
 
 ;(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
@@ -641,17 +630,6 @@ else (format t "Sin sol por la tarde %n"))
 	(object (is-a Recomendacion) (contenido ?c))
 	=>
 	(assert (puntua_general (send ?c get-Id)))
-)
-
-(defrule procesado::fact_puntuacion_usuario "crea facts que puntuan viviendas dependiendo de los criterios del usuario"
-	(declare (salience 10))
-	(fin_fil)
-	(preferencias_usuario (preferencias_vivienda $?preferencias))
-	(object (is-a Recomendacion) (contenido ?c))
-	=>
-	(progn$ (?preferencia $?preferencias)
-			(assert (vivienda_pref_puntuacion ?preferencia (send ?c get-Id)))
-	)
 )
 
 
@@ -861,7 +839,7 @@ else (format t "Sin sol por la tarde %n"))
 				(bind ?pextra (+ ?p 1))
 				(bind $?ljust $?ljust "+ Ocio nocturno a distancia media" )
 			)
-			(if (and (or (eq (class ?c) Supermercado) (eq (class ?c) Zona+comercial) ) (or (eq ?t familia) (eq ?t pareja))) then
+			(if (and (or (eq (class ?c) Supermercado) (eq (class ?c) Zona+comercial )) (or (eq ?t familia) (eq ?t pareja))) then
 				(bind ?pextra (+ ?p 1))
 				(bind $?ljust $?ljust "+ Super/centro comercial a distancia media" )
 			)
@@ -920,103 +898,6 @@ else (format t "Sin sol por la tarde %n"))
 		)
 		(send ?viv put-puntuacion ?pextra)
 		(send ?viv put-justificaciones $?ljust)
-		(retract ?f)
-)
-
-(defrule procesado::puntua_car_usuario "Puntua caracteristicas que el usuario ha pedido"
-		?viv <- (object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
-		?f <- (vivienda_pref_puntuacion ?preferencia ?id)
-		(test (eq ?id (send ?c get-Id)))
-		=> Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas
-		(bind ?pextra ?p)
-		(bind $?justificacions $?j)
-		(if (eq ?preferencia Terraza)
-			then
-			(if (eq TRUE (send ?c get-Terraza))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Posee Terraza")
-			)
-		else (if (eq ?preferencia Soleado_Tarde)
-			then
-			(if (eq TRUE (send ?c get-Sol_tarde))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Da el sol por la tarde")
-			)
-		else (if (eq ?preferencia Soleado_mañana)
-			then
-			(if (eq TRUE (send ?c get-Sol_man))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Da el sol por la mañana")
-			)
-		else (if (eq ?preferencia Piscina)
-			then
-			(if (eq TRUE (send ?c get-Piscina))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Tiene piscina")
-			)
-		else (if (eq ?preferencia Amueblado)
-			then
-			(if (eq TRUE (send ?c get-Amueblada))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Viene amueblada")
-			)
-		else (if (eq ?preferencia Vistas)
-			then
-			(if (eq TRUE (send ?c get-vistas))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Posee vistas")
-			)
-		else (if (eq ?preferencia Aire_acondicionado)
-			then
-			(if (eq TRUE (send ?c get-Aire))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Tiene aire acondicionado")
-			)
-		else (if (eq ?preferencia Electrodomesticos)
-			then
-			(if (eq TRUE (send ?c get-Electrodomesticos))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Viene con electrodomesticos")
-			)
-		else (if (eq ?preferencia Calefaccion)
-			then
-			(if (eq TRUE (send ?c get-Calefaccion))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Posee calefaccion")
-			)
-		else (if (eq ?preferencia Balcon)
-			then
-			(if (eq TRUE (send ?c get-Balcon))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Posee balcon")
-			)
-		else (if (eq ?preferencia Garaje)
-			then
-			(if (eq TRUE (send ?c get-Garaje))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Posee garaje")
-			)
-		else (if (eq ?preferencia Mascotas)
-			then
-			(if (eq TRUE (send ?c get-Mascotas))
-			then
-				(bind ?pextra (+ ?pextra 5))
-				(bind $?justificacions $?justificacions "+ Se pueden tener mascotas")
-			)
-		))))))))))))
-		(send ?c put-puntuacion ?pextra)
-		(send ?c put-justificaciones $?justificacions)
 		(retract ?f)
 )
 
@@ -1090,7 +971,7 @@ else (format t "Sin sol por la tarde %n"))
 		(while (<= ?i (length$ $?lista )) do
 			(bind ?rec (nth$ ?i $?lista ))
 
-			(if (<= 125 (send ?rec get-puntuacion)) then
+			(if (<= 150 (send ?rec get-puntuacion)) then
 				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
 
 				else
