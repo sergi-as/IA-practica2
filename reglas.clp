@@ -268,6 +268,7 @@ else (format t "Sin sol por la tarde %n"))
 	(slot precio_maximo (type INTEGER)(default -1))
 	(slot precio_estricto (type SYMBOL)(default desconocido))
 	(slot num_dormitorios_dobles (type INTEGER)(default -1))
+	(slot num_banyos (type INTEGER)(default -1))
 	(slot precio_minimo (type INTEGER)(default -1))
 	(multislot distancia_servicio (type SYMBOL))
 	(multislot preferencias_vivienda (type SYMBOL))
@@ -408,8 +409,8 @@ else (format t "Sin sol por la tarde %n"))
 	?g <- (Usuario (coorX ?x)(coorY ?y))
 	?t <- (preguntacoord ask)
 	=>
-	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 10000))
-	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 10000))
+	(bind ?x (pregunta-numerica "Escriba la coordenada x " 0 3000))
+	(bind ?y (pregunta-numerica "Escriba la coordenada y " 0 3000))
 	(modify ?g (coorX ?x)(coorY ?y) )
 	(retract ?t)
 	(assert (preguntacoord done))
@@ -422,6 +423,7 @@ else (format t "Sin sol por la tarde %n"))
 	(bind ?v (pregunta-si-no "Dispone de vehiculo propio? " ))
 	(modify ?g (posee_vehiculo ?v))
 )
+
 (defrule recopilacion-usuario::inicia-prefernecias "Cambia de modulo para preguntar por preferencias"
 	(declare (salience -10))
 	=>
@@ -458,13 +460,13 @@ else (format t "Sin sol por la tarde %n"))
 	(modify ?g (num_dormitorios_dobles ?num_dormitorios_dobles))
 )
 
-;(defrule recopilacion-preferencias::establecer-tam_dormitorios "Establece el tamanyo de los dormitorios deseado por el usuario"
-;	?g <- (preferencias_usuario (tam_dormitorios ?tam_dormitorios))
-;	(test (< ?tam_dormitorios 0))
-;	=>
-;	(bind ?tam_dormitorios (pregunta-numerica "¿Cual es el tamanyo de los dormitorios deseado? " 1 20))
-;	(modify ?g (tam_dormitorios ?tam_dormitorios))
-;)
+(defrule recopilacion-preferencias::establecer-num_banyos "Establece el numero de banyos deseado por el usuario"
+	?g <- (preferencias_usuario (num_banyos ?num_banyos))
+	(test (< ?num_banyos 0))
+	=>
+	(bind ?num_banyos (pregunta-numerica "¿Cual es el numero de banyos deseado? " 0 20))
+	(modify ?g (num_banyos ?num_banyos))
+)
 
 (defrule recopilacion-preferencias::establecer-precio_minimo "Establece el precio minimo a partir del cual el usuario piensa que la vivienda es adecuada"
 	?g <- (preferencias_usuario (precio_minimo ?precio_minimo))
@@ -478,7 +480,7 @@ else (format t "Sin sol por la tarde %n"))
     ?hecho <- (servicios_pref ask)
 	?pref <- (preferencias_usuario)
 	=>
-	(bind $?nom-servicios (create$ Bus Metro Tren colegio Centro_de_salud Estadio_de_deportes Ocio_nocturno Supermercado Zona_comercial Zona_verde Restaurante Iglesia Parque+de+atracciones ))
+	(bind $?nom-servicios (create$ Bus Metro Tren colegio Centro_de_salud Estadio_de_deportes Ocio_nocturno Supermercado Zona_comercial Zona_verde Restaurante Iglesia Parque_de_atracciones ))
 	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?nom-servicios))
 	(assert (servicios_pref TRUE))
     (bind $?respuesta (create$ ))
@@ -496,7 +498,7 @@ else (format t "Sin sol por la tarde %n"))
 		?hecho <- (preferencias_viv ask)
 		?pref <- (preferencias_usuario)
 		=>
-		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas Seguridad Reformada Ascensor Banyos TV WIFI Accesible Fumadores Portero))
+		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas Seguridad Reformada Ascensor TV WIFI Accesible Fumadores Portero))
 		(bind $?escogido (pregunta-multirespuesta "Escoja las preferencias que deben estar (o 0 en el caso que no haya ninguna): " $?nom-preferencias))
 		(assert (preferencias_viv TRUE))
 	    (bind $?respuesta (create$ ))
@@ -739,8 +741,6 @@ else (format t "Sin sol por la tarde %n"))
 	(retract ?f)
 )
 
-
-
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 				;(preferencias_usuario (distancia_servicio $?servicios))
 				?ser <-(object (is-a Servicio) )
@@ -823,6 +823,14 @@ else (format t "Sin sol por la tarde %n"))
 				(bind ?pextra (- ?p 5))
 				(bind $?ljust $?ljust "+ Servicio molesto: Ocio nocturno cerca" )
 			)
+			(if (and (eq (class ?c) Iglesia) (>= ?e 65)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Iglesia cerca" )
+			)
+			(if (and (eq (class ?c) Parque+de+atracciones) (<= ?e 30)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Parque de atracciones cerca" )
+			)
       (if (and (eq (class ?c) Estadio+de+deportes) (>= ?e 65)) then
 				(bind ?pextra (- ?p 5))
 				(bind $?ljust $?ljust "+ Servicio molesto: Estadio de deportes cerca" )
@@ -874,6 +882,14 @@ else (format t "Sin sol por la tarde %n"))
 				(bind ?pextra (+ ?p 1))
 				(bind $?ljust $?ljust "+ Zona comercial a distancia media" )
 			)
+			(if (and (eq (class ?c) Iglesia) (>= ?e 65)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Iglesia a distancia media" )
+			)
+			(if (and (eq (class ?c) Parque+de+atracciones) (<= ?e 30)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Parque de atracciones a distancia media" )
+			)
 		)
 
 		(send ?viv put-puntuacion ?pextra)
@@ -888,10 +904,7 @@ else (format t "Sin sol por la tarde %n"))
 		=>
 		(bind $?ljust $?j)
 		(bind ?pextra ?p)
-		(if (and (send ?c get-Sol_man) (send ?c get-Sol_tarde)) then
-			(bind ?pextra (+ ?pextra 2))
-			(bind $?ljust $?ljust "+ Vivienda soleada")
-		)
+
 		(if (eq (send ?c get-Tipo) familiar) then
  			(bind ?pextra (+ ?pextra 2))
 			(bind $?ljust $?ljust "+ Vivienda unifamiliar")
@@ -900,10 +913,7 @@ else (format t "Sin sol por la tarde %n"))
  			(bind ?pextra (+ ?pextra 2))
 			(bind $?ljust $?ljust "+ Vivienda es un atico")
 		)
-		(if (send ?c get-Terraza) then
-			(bind ?pextra (+ ?pextra 2))
-			(bind $?ljust $?ljust "+ Tiene terraza")
-		)
+
 		;defino la densidad de servicios como 2*n.servicios cerca + n.servicios media
 		(bind ?densidad 0)
 		(progn$ (?ser (send ?c get-servicio_cerca))
