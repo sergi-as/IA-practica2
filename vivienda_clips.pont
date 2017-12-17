@@ -125,7 +125,7 @@
 ;+		(allowed-classes Coordenadas)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Ba%C3%B1os
+	(single-slot Banyos
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
@@ -223,7 +223,7 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Ba%C3%B1os
+	(single-slot Banyos
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
