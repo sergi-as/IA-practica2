@@ -273,8 +273,6 @@ else (format t "Sin sol por la tarde %n"))
 	(slot precio_minimo (type INTEGER)(default -1))
 	(multislot distancia_servicio (type SYMBOL))
 	(multislot preferencias_vivienda (type SYMBOL))
-	(slot tipo_vivienda (type SYMBOL))
-	(slot altura_vivienda (type SYMBOL))
 )
 
 ;;; Template para una lista de recomendaciones sin orden
@@ -512,20 +510,6 @@ else (format t "Sin sol por la tarde %n"))
 		(retract ?hecho)
 	    (modify ?pref (preferencias_vivienda $?respuesta))
 )
-
-(defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda que se busca"
- 		?hecho <- (tipo_viv ask)
- 		?pref <- (preferencias_usuario)
- 		=>
- 		(bind $?nom-preferencias (create$ piso duplex familiar))
- 		(bind ?tipo_vivienda (pregunta-indice "Que tipo de piso se ajusta a tus gustos?" $?nom-preferencias))
- 		(bind $?nom-altura (create$ planta_baja entresuelo primero segundo tercero cuarto quinto sexto septimo octavo noveno atico))
- 		(bind ?altura (pregunta-indice "A que altura le gustaria que estuviese?" $?nom-altura))
-   	(bind ?respuesta_vivienda (nth$ ?tipo_vivienda $?nom-preferencias))
- 		(bind ?respuesta_altura (nth$ ?altura $?nom-altura))
- 		(retract ?hecho)
-  	(modify ?pref (tipo_vivienda ?respuesta_vivienda) (altura_vivienda ?respuesta_altura))
- )
 
 
 ;(defrule recopilacion-preferencias::testi
