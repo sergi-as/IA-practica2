@@ -273,8 +273,6 @@ else (format t "Sin sol por la tarde %n"))
 	(multislot preferencias_vivienda (type SYMBOL))
 	(slot tipo_vivienda (type SYMBOL))
 	(slot altura_vivienda (type SYMBOL))
-	(multislot restricciones_servicio (type SYMBOL))
-	(multislot restricciones_vivienda (type SYMBOL))
 )
 
 ;;; Template para una lista de recomendaciones sin orden
@@ -492,7 +490,6 @@ else (format t "Sin sol por la tarde %n"))
 	)
 	(retract ?hecho)
     (modify ?pref (distancia_servicio $?respuesta))
-		(assert (servicio_rest ask))
 )
 
 (defrule recopilacion-preferencias::establecer-preferencias_vivienda "Establece los complementos que se quieren para una vivienda"
@@ -511,7 +508,6 @@ else (format t "Sin sol por la tarde %n"))
 		)
 		(retract ?hecho)
 	    (modify ?pref (preferencias_vivienda $?respuesta))
-			(assert (preferencias_rest ask))
 )
 
 (defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda que se busca"
@@ -528,40 +524,7 @@ else (format t "Sin sol por la tarde %n"))
   	(modify ?pref (tipo_vivienda ?respuesta_vivienda) (altura_vivienda ?respuesta_altura))
  )
 
-(defrule recopilacion-preferencias::establecer-servicio_restricciones "Establece los servicios que el usuario quiere que esten cerca"
-     ?hecho <- (servicios_rest ask)
- 	?pref <- (preferencias_usuario (distancia_servicio $?servicios))
- 	=>
- 	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?servicios))
- 	(assert (servicios_rest TRUE))
-     (bind $?respuesta (create$ ))
- 	(loop-for-count (?i 1 (length$ $?escogido)) do
- 		(bind ?curr-index (nth$ ?i $?escogido))
-         (if (= ?curr-index 0) then (assert (servicios_rest FALSE)))
- 		(bind ?curr-servicio (nth$ ?curr-index $?servicios))
- 		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
- 	)
- 	(retract ?hecho)
-     (modify ?pref (restricciones_servicio $?respuesta))
 
-)
-
-(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
-    ?hecho <- (preferencias_rest ask)
-	?pref <- (preferencias_usuario (preferencias_vivienda $?preferencias))
-	=>
-	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?preferencias))
-	(assert (preferencias_rest TRUE))
-    (bind $?respuesta (create$ ))
-	(loop-for-count (?i 1 (length$ $?escogido)) do
-		(bind ?curr-index (nth$ ?i $?escogido))
-        (if (= ?curr-index 0) then (assert (preferencias_rest FALSE)))
-		(bind ?curr-servicio (nth$ ?curr-index $?preferencias))
-		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
-	)
-	(retract ?hecho)
-    (modify ?pref (restricciones_vivienda $?respuesta))
-)
 ;(defrule recopilacion-preferencias::testi
 ;	?t<-(testing)
 ;	(preferencias_usuario (distancia_servicio $?ds))
@@ -776,6 +739,8 @@ else (format t "Sin sol por la tarde %n"))
 	(retract ?f)
 )
 
+
+
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 				;(preferencias_usuario (distancia_servicio $?servicios))
 				?ser <-(object (is-a Servicio) )
@@ -960,155 +925,197 @@ else (format t "Sin sol por la tarde %n"))
 )
 
 (defrule procesado::puntua_car_usuario "Puntua caracteristicas que el usuario ha pedido"
- 	?viv <- (object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j))
+ 	?viv <- (object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j) (fallos ?fe))
  	?f <- (vivienda_pref_puntuacion ?preferencia ?id)
  	(test (eq ?id (send ?c get-Id)))
- 	=> Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas Seguridad Reformada Ascensor TV WIFI Accesible Fumadores Portero
+ 	=>
  	(bind ?pextra ?p)
  	(bind $?justificacions $?j)
+	(bind ?fallos ?fe)
  	(if (eq ?preferencia Terraza)
  		then
  		(if (eq TRUE (send ?c get-Terraza))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Posee Terraza")
- 		)
+ 		else
+			(bind ?fallos (+ ?fallos 1))
+		)
  	else (if (eq ?preferencia Soleado_Tarde)
  		then
  		(if (eq TRUE (send ?c get-Sol_tarde))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Da el sol por la tarde")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Soleado_mañana)
  		then
  		(if (eq TRUE (send ?c get-Sol_man))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Da el sol por la mañana")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Piscina)
  		then
  		(if (eq TRUE (send ?c get-Piscina))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Tiene piscina")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Amueblado)
  		then
  		(if (eq TRUE (send ?c get-Amueblada))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Viene amueblada")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Vistas)
  		then
  		(if (eq TRUE (send ?c get-vistas))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Posee vistas")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Aire_acondicionado)
  		then
  		(if (eq TRUE (send ?c get-Aire))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Tiene aire acondicionado")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Electrodomesticos)
  		then
  		(if (eq TRUE (send ?c get-Electrodomesticos))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Viene con electrodomesticos")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Calefaccion)
  		then
  		(if (eq TRUE (send ?c get-Calefaccion))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Posee calefaccion")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Balcon)
  		then
  		(if (eq TRUE (send ?c get-Balcon))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Posee balcon")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Garaje)
  		then
  		(if (eq TRUE (send ?c get-Garaje))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Posee garaje")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
  	else (if (eq ?preferencia Mascotas)
  		then
  		(if (eq TRUE (send ?c get-Mascotas))
  		then
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Se pueden tener mascotas")
- 		)
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
   else (if (eq ?preferencia Seguridad)
     then
     (if (eq TRUE (send ?c get-Seguridad))
     then
       (bind ?pextra (+ ?pextra 5))
       (bind $?justificacions $?justificacions "+ Con seguridad")
-    )
+			else
+				(bind ?fallos (+ ?fallos 1))
+			)
   else (if (eq ?preferencia Reformada)
     then
      (if (eq TRUE (send ?c get-Reformada))
     then
      	(bind ?pextra (+ ?pextra 5))
      	(bind $?justificacions $?justificacions "+ Reformada recientemente")
-     )
+			else
+  			(bind ?fallos (+ ?fallos 1))
+  		)
   else (if (eq ?preferencia Ascensor)
 		then
        		(if (eq TRUE (send ?c get-Ascensor))
        		then
        			(bind ?pextra (+ ?pextra 5))
        			(bind $?justificacions $?justificacions "+ Con ascensor")
-       		)
+						else
+							(bind ?fallos (+ ?fallos 1))
+						)
           else (if (eq ?preferencia TV)
          		then
          		(if (eq TRUE (send ?c get-TV))
          		then
          			(bind ?pextra (+ ?pextra 5))
          			(bind $?justificacions $?justificacions "+ Con TV")
-         		)
+							else
+								(bind ?fallos (+ ?fallos 1))
+							)
             else (if (eq ?preferencia WIFI)
            		then
            		(if (eq TRUE (send ?c get-WIFI))
            		then
            			(bind ?pextra (+ ?pextra 5))
            			(bind $?justificacions $?justificacions "+ Con WIFI")
-           		)
+								else
+									(bind ?fallos (+ ?fallos 1))
+								)
               else (if (eq ?preferencia Accesible)
              		then
              		(if (eq TRUE (send ?c get-Accesible))
              		then
              			(bind ?pextra (+ ?pextra 5))
              			(bind $?justificacions $?justificacions "+ Con accesibilidad")
-             		)
+									else
+										(bind ?fallos (+ ?fallos 1))
+									)
                 else (if (eq ?preferencia Fumadores)
                		then
                		(if (eq TRUE (send ?c get-Fumadores))
                		then
                			(bind ?pextra (+ ?pextra 5))
                			(bind $?justificacions $?justificacions "+ Se puede fumar")
-               		)
+										else
+											(bind ?fallos (+ ?fallos 1))
+										)
                   else (if (eq ?preferencia Portero)
                  		then
                  		(if (eq TRUE (send ?c get-Portero))
                  		then
                  			(bind ?pextra (+ ?pextra 5))
                  			(bind $?justificacions $?justificacions "+ Con portero")
-                 		)
+											else
+												(bind ?fallos (+ ?fallos 1))
+											)
  	))))))))))))))))))))
  	(send ?c put-puntuacion ?pextra)
  	(send ?c put-justificaciones $?justificacions)
+	(send ?c put-fallos ?fallos)
  	(retract ?f)
  )
 
