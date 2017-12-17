@@ -498,7 +498,7 @@ else (format t "Sin sol por la tarde %n"))
 		?hecho <- (preferencias_viv ask)
 		?pref <- (preferencias_usuario)
 		=>
-		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_mañana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas Seguridad Reformada Ascensor TV WIFI Accesible Fumadores Portero))
+		(bind $?nom-preferencias (create$ Terraza Soleado_Tarde Soleado_manyana Piscina Amueblado Vistas Aire_acondicionado Electrodomesticos Calefaccion Balcon Garaje Mascotas Seguridad Reformada Ascensor TV WIFI Accesible Fumadores Portero))
 		(bind $?escogido (pregunta-multirespuesta "Escoja las preferencias que deben estar (o 0 en el caso que no haya ninguna): " $?nom-preferencias))
 		(assert (preferencias_viv TRUE))
 	    (bind $?respuesta (create$ ))
@@ -960,12 +960,12 @@ else (format t "Sin sol por la tarde %n"))
 			else
 				(bind ?fallos (+ ?fallos 1))
 			)
- 	else (if (eq ?preferencia Soleado_mañana)
+ 	else (if (eq ?preferencia Soleado_manyana)
  		then
  		(if (eq TRUE (send ?c get-Sol_man))
  		then
  			(bind ?pextra (+ ?pextra 5))
- 			(bind $?justificacions $?justificacions "+ Da el sol por la mañana")
+ 			(bind $?justificacions $?justificacions "+ Da el sol por la manyana")
 			else
 				(bind ?fallos (+ ?fallos 1))
 			)
