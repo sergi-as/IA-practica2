@@ -229,7 +229,6 @@ else (format t "Sin sol por la tarde %n"))
 ;;; Templates
 (deftemplate MAIN::Usuario
 	(slot nombre (type STRING))
-	(slot sexo (type SYMBOL)(default desconocido))
 	(slot edad (type INTEGER)(default -1))
 	;tipologia del solicitante: familia,pareja o gruppo
 	(slot tipo (type SYMBOL)(default desconocido))
@@ -336,14 +335,6 @@ else (format t "Sin sol por la tarde %n"))
 	(modify ?g (edad ?edad))
 )
 
-;Nose como hacerlo con lo de los symbols
-(defrule recopilacion-usuario::establecer-sexo "Establece el sexo del usuario"
-	?g <- (Usuario (sexo ?sexo))
-	(test (eq ?sexo desconocido))
-	=>
-	(bind ?sexo (pregunta-opciones "Cual es tu sexo? (hombre o mujer) "  hombre mujer ))
-	(modify ?g (sexo ?sexo))
-)
 ;;;;;;;;;;;;;;;;;;;;;;
 ;TODO preguntar si la familia espera hijos
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -508,42 +499,6 @@ else (format t "Sin sol por la tarde %n"))
  		(modify ?pref (altura_vivienda ?respuesta_altura))
  )
 
-
-;(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
-	;?f <- (falta preferencias)
-	;?g <- (preferencias_usuario)
-	;=>
-	;(bind $?serviciospref (create$ ))
-	;(bind ?respuesta (pregunta-si-no "Deseas tener un centro de salud cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) centrosalud)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener un colegio cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) colegio)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener un estadio de deportes cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) estadiodeportes)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener un hipermercado cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) hipermercado)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona de ocio nocturna cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) ocionocturno)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener un supermercado cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) supermercado)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener transporte publico cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) transportepublico)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona comercial cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonacomercial)))
-
-	;(bind ?respuesta (pregunta-si-no "Deseas tener una zona verde cerca?" ))
-	;(if (eq ?respuesta TRUE) then (bind $?serviciospref(insert$ $?serviciospref (+ (length$ $?serviciospref) 1) zonaverde)))
-	;(retract ?f)
-	;(modify ?g (distancia_servicio $?serviciospref))
-	;(assert (testing))
-;)
 ;(defrule recopilacion-preferencias::testi
 ;	?t<-(testing)
 ;	(preferencias_usuario (distancia_servicio $?ds))
@@ -585,7 +540,7 @@ else (format t "Sin sol por la tarde %n"))
 	(assert (fil_cap (send ?viv get-Id)))
 	)
 
-	(defrule procesado::unifica_filtros "unifiica las variables de filtro para simplificar el codigo posterior"
+	(defrule procesado::unifica_filtros "unifica las variables de filtro para simplificar el codigo posterior"
 		(declare (salience 5))
 		(not (or (fil_precio ?) (fil_bajo ?) (fil_cap ?)))
 		=>
@@ -758,9 +713,6 @@ else (format t "Sin sol por la tarde %n"))
 	(retract ?f)
 )
 
-
-
-
 (defrule procesado::puntua_servicios "Se puntua segun los servicios cercanos que hayan"
 				;(preferencias_usuario (distancia_servicio $?servicios))
 				?ser <-(object (is-a Servicio) )
@@ -799,9 +751,6 @@ else (format t "Sin sol por la tarde %n"))
 				)
 				(retract ?f)
 )
-
-
-
 
 (defrule procesado::trabajo_cerca "Si el usuario trabaja en la ciudad,puntua mejor si esta cerca"
 	?fact <-(valora_trabajo)
@@ -842,6 +791,22 @@ else (format t "Sin sol por la tarde %n"))
 				(bind ?pextra (+ ?p 2))
 				(bind $?ljust $?ljust "+ Ocio nocturno cerca" )
 			)
+      (if (and (eq (class ?c) ocio+nocturno) (>= ?e 65)) then
+				(bind ?pextra (- ?p 5))
+				(bind $?ljust $?ljust "+ Servicio molesto: Ocio nocturno cerca" )
+			)
+      (if (and (eq (class ?c) Estadio+de+deportes) (>= ?e 65)) then
+				(bind ?pextra (- ?p 5))
+				(bind $?ljust $?ljust "+ Servicio molesto: Estadio de deportes cerca" )
+			)
+      (if (and (eq (class ?c) Estadio+de+deportes) (< ?e 65)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Estadio de deportes cerca" )
+			)
+      (if (and (eq (class ?c) Zona+comercial) (< ?e 65)) then
+				(bind ?pextra (+ ?p 2))
+				(bind $?ljust $?ljust "+ Zona comercial cerca" )
+			)
 			(if (and (or (eq (class ?c) Supermercado) (eq (class ?c) Zona+comercial) ) (or (eq ?t familia) (eq ?t pareja)))  then
 				(bind ?pextra (+ ?p 2))
 				(bind $?ljust $?ljust "+ Super/centro comercial cerca" )
@@ -872,6 +837,14 @@ else (format t "Sin sol por la tarde %n"))
 			(if (and (eq (class ?c) colegio) (eq ?t familia)) then
 				(bind ?pextra (+ ?p 1))
 				(bind $?ljust $?ljust "+ Colegio a distancia media" )
+			)
+      (if (and (eq (class ?c) Estadio+de+deportes) (< ?e 65)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Estadio de deportes a distancia media" )
+			)
+      (if (and (eq (class ?c) Zona+comercial) (< ?e 65)) then
+				(bind ?pextra (+ ?p 1))
+				(bind $?ljust $?ljust "+ Zona comercial a distancia media" )
 			)
 		)
 
@@ -1019,7 +992,7 @@ else (format t "Sin sol por la tarde %n"))
  	(send ?c put-justificaciones $?justificacions)
  	(retract ?f)
  )
- 
+
 
 (defrule procesado::genera_solucion "cambia de modulo"
 	(declare (salience -10))
@@ -1027,7 +1000,6 @@ else (format t "Sin sol por la tarde %n"))
 	(printout t "...Generando solucion..." crlf)
 	(focus generacion_sol)
 )
-
 
 
 ;;--------------------------------------------
@@ -1040,7 +1012,6 @@ else (format t "Sin sol por la tarde %n"))
 	=>
 	(assert (lista-rec-desordenada))
 )
-
 
 (deffunction max_punt ($?viviendas_rec)
 	(bind ?max -1)
@@ -1119,7 +1090,6 @@ else (format t "Sin sol por la tarde %n"))
 			=>
 		(focus mostrar_resultados)
 		)
-
 
 
 ;;--------------------------------------------

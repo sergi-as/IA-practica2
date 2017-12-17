@@ -3,7 +3,7 @@ Marcadas por enunciado:
 [hecho] Personas jovenes: Servicio ocio cerca ++;
 [hecho] Familias/Parejas: Servicio Hipermercado cerca ++;
 [hecho] Ancianos: Servicio centro salud o supermercado cerca ++;
-[hecho considerando familia como tiene hijos]Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
+[hecho] considerando familia como tiene hijos]Si hay hijos: Servicio colegio o zona verde cerca o media distancia++;
 [hecho] Si trabaja/estudia Servicio transporte publico cerca ++;
 
 -----------------------------------------------------------------------
@@ -21,29 +21,29 @@ Si precio menor ++;
 [hecho] si tiene mas habitaciones ++;
 si mas superficie ++;
 [hecho]si tiene terraza, balcon o algun otro atributo ademas de los que ha pedido ++;
-Ancianos -> servicio molesto servicio ocio y estadio de deportes
+[hecho]Ancianos -> servicio molesto servicio ocio y estadio de deportes
 Si un servicio que ha pedido a media esta en cerca ++;
-Jovenes/Adultos(no viejos) Zona comercial ++???
-Jovenes/Adultos(no viejos) estadio de deportes++ ????
+[hecho]Jovenes/Adultos(no viejos) Zona comercial ++???
+[hecho]Jovenes/Adultos(no viejos) estadio de deportes++ ????
 ------------------------------------------------------------------------
 Recomendaciones se tienen que dividir en:
 Parcialmente adecuado: No se cumplen 1 o 2 restricciones (pero por poco) //Se tiene que decir que criterios no se cumplen
 Adecuado: Cumple requisitos
 Muy recomendable: Cumple requisitos + extras  //Se tienen que decir los extras que tiene
 ---------------------------------------------------------------------------------------------
-Atributos que se pueden aÃ±adir a viviendas:
+Atributos que se pueden añadir a viviendas:
 Seguridad
 Reformada recientemente
 Ascensor
-Numero de baÃ±os
-TamaÃ±os de dormitorios (lo dice en enunciado)
+Numero de baños
+Tamaños de dormitorios (lo dice en enunciado)
 TV
 WIFI
 Accesible
 Fumadores
 Portero
 
-Servicios que se pueden aÃ±adir:
+Servicios que se pueden añadir:
 Restaurante
 Iglesia
 Jeriatrico
