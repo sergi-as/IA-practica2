@@ -25,12 +25,20 @@ si mas superficie ++;
 Si un servicio que ha pedido a media esta en cerca ++;
 [hecho]Jovenes/Adultos(no viejos) Zona comercial ++???
 [hecho]Jovenes/Adultos(no viejos) estadio de deportes++ ????
+
+Falta evaluar Banyos, hacer pregunta igual que dormi simple y evaluar 
+Mirar lo de los servicios con _ o +
+Evaluar caracteristicas extra con los servicios añadidos
+Evaluar caracteristicas extra con los atributos añadidos
+Separar lo de restricciones/pref de servicios y caracteristicas
+Evaluar pref/restr de los servicios y caracteristicas
 ------------------------------------------------------------------------
 Recomendaciones se tienen que dividir en:
 Parcialmente adecuado: No se cumplen 1 o 2 restricciones (pero por poco) //Se tiene que decir que criterios no se cumplen
 Adecuado: Cumple requisitos
 Muy recomendable: Cumple requisitos + extras  //Se tienen que decir los extras que tiene
 ---------------------------------------------------------------------------------------------
+[hecho]
 Atributos que se pueden añadir a viviendas:
 Seguridad
 Reformada recientemente
@@ -46,6 +54,5 @@ Portero
 Servicios que se pueden añadir:
 Restaurante
 Iglesia
-Jeriatrico
 Parque de atracciones
 Tren
