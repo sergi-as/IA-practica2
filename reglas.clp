@@ -495,8 +495,7 @@ else (format t "Sin sol por la tarde %n"))
    	(bind ?respuesta_vivienda (nth$ ?tipo_vivienda $?nom-preferencias))
  		(bind ?respuesta_altura (nth$ ?altura $?nom-altura))
  		(retract ?hecho)
-  	(modify ?pref (tipo_vivienda ?respuesta_vivienda))
- 		(modify ?pref (altura_vivienda ?respuesta_altura))
+  	(modify ?pref (tipo_vivienda ?respuesta_vivienda) (altura_vivienda ?respuesta_altura))
  )
 
 ;(defrule recopilacion-preferencias::testi
