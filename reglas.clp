@@ -273,6 +273,8 @@ else (format t "Sin sol por la tarde %n"))
 	(multislot preferencias_vivienda (type SYMBOL))
 	(slot tipo_vivienda (type SYMBOL))
 	(slot altura_vivienda (type SYMBOL))
+	(multislot restricciones_servicio (type SYMBOL))
+	(multislot restricciones_vivienda (type SYMBOL))
 )
 
 ;;; Template para una lista de recomendaciones sin orden
@@ -490,6 +492,7 @@ else (format t "Sin sol por la tarde %n"))
 	)
 	(retract ?hecho)
     (modify ?pref (distancia_servicio $?respuesta))
+		(assert (servicio_rest ask))
 )
 
 (defrule recopilacion-preferencias::establecer-preferencias_vivienda "Establece los complementos que se quieren para una vivienda"
@@ -508,6 +511,7 @@ else (format t "Sin sol por la tarde %n"))
 		)
 		(retract ?hecho)
 	    (modify ?pref (preferencias_vivienda $?respuesta))
+			(assert (preferencias_rest ask))
 )
 
 (defrule recopilacion-preferencias::establecer-tipo_vivienda "Establece que tipo de vivienda que se busca"
@@ -524,6 +528,40 @@ else (format t "Sin sol por la tarde %n"))
   	(modify ?pref (tipo_vivienda ?respuesta_vivienda) (altura_vivienda ?respuesta_altura))
  )
 
+(defrule recopilacion-preferencias::establecer-servicio_restricciones "Establece los servicios que el usuario quiere que esten cerca"
+     ?hecho <- (servicios_rest ask)
+ 	?pref <- (preferencias_usuario (distancia_servicio $?servicios))
+ 	=>
+ 	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?servicios))
+ 	(assert (servicios_rest TRUE))
+     (bind $?respuesta (create$ ))
+ 	(loop-for-count (?i 1 (length$ $?escogido)) do
+ 		(bind ?curr-index (nth$ ?i $?escogido))
+         (if (= ?curr-index 0) then (assert (servicios_rest FALSE)))
+ 		(bind ?curr-servicio (nth$ ?curr-index $?servicios))
+ 		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
+ 	)
+ 	(retract ?hecho)
+     (modify ?pref (restricciones_servicio $?respuesta))
+
+)
+
+(defrule recopilacion-preferencias::establecer-distancia_servicio "Establece los servicios que el usuario quiere que esten cerca"
+    ?hecho <- (preferencias_rest ask)
+	?pref <- (preferencias_usuario (preferencias_vivienda $?preferencias))
+	=>
+	(bind $?escogido (pregunta-multirespuesta "Escoja los servicios que tienen que estar cerca (o 0 en el caso que no haya ninguno): " $?preferencias))
+	(assert (preferencias_rest TRUE))
+    (bind $?respuesta (create$ ))
+	(loop-for-count (?i 1 (length$ $?escogido)) do
+		(bind ?curr-index (nth$ ?i $?escogido))
+        (if (= ?curr-index 0) then (assert (preferencias_rest FALSE)))
+		(bind ?curr-servicio (nth$ ?curr-index $?preferencias))
+		(bind $?respuesta(insert$ $?respuesta (+ (length$ $?respuesta) 1) ?curr-servicio))
+	)
+	(retract ?hecho)
+    (modify ?pref (restricciones_vivienda $?respuesta))
+)
 ;(defrule recopilacion-preferencias::testi
 ;	?t<-(testing)
 ;	(preferencias_usuario (distancia_servicio $?ds))
@@ -1012,22 +1050,22 @@ else (format t "Sin sol por la tarde %n"))
  			(bind ?pextra (+ ?pextra 5))
  			(bind $?justificacions $?justificacions "+ Se pueden tener mascotas")
  		)
-    else (if (eq ?preferencia Seguridad)
-      then
-      (if (eq TRUE (send ?c get-Seguridad))
-      then
-        (bind ?pextra (+ ?pextra 5))
-        (bind $?justificacions $?justificacions "+ Con seguridad")
-      )
-      else (if (eq ?preferencia Reformada)
-     		then
-     		(if (eq TRUE (send ?c get-Reformada))
-     		then
-     			(bind ?pextra (+ ?pextra 5))
-     			(bind $?justificacions $?justificacions "+ Reformada recientemente")
-     		)
-        else (if (eq ?preferencia Ascensor)
-       		then
+  else (if (eq ?preferencia Seguridad)
+    then
+    (if (eq TRUE (send ?c get-Seguridad))
+    then
+      (bind ?pextra (+ ?pextra 5))
+      (bind $?justificacions $?justificacions "+ Con seguridad")
+    )
+  else (if (eq ?preferencia Reformada)
+    then
+     (if (eq TRUE (send ?c get-Reformada))
+    then
+     	(bind ?pextra (+ ?pextra 5))
+     	(bind $?justificacions $?justificacions "+ Reformada recientemente")
+     )
+  else (if (eq ?preferencia Ascensor)
+		then
        		(if (eq TRUE (send ?c get-Ascensor))
        		then
        			(bind ?pextra (+ ?pextra 5))
