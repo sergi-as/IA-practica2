@@ -1,5 +1,5 @@
-; Thu Dec 14 19:38:59 CET 2017
-;
+; Sun Dec 17 17:52:16 CET 2017
+; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
 
@@ -15,20 +15,25 @@
 
 ([vivienda_Class10000] of  Vivienda
 
-	(Altura_piso cuarto)
+	(Amueblada TRUE)
 	(Balcon TRUE)
+	(Banyos 3)
 	(Calefaccion TRUE)
 	(Coord_viv [vivienda_Class20001])
 	(Dormi_doble 2)
 	(Dormi_simple 3)
-	(Garaje FALSE)
-	(Id "Tercera")
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Id "Casa en can carreras")
 	(Mascotas TRUE)
 	(Piscina TRUE)
-	(Precio_mensual 1000.0)
-	(Sol_tarde FALSE)
+	(Precio_mensual 4000.0)
+	(Reformada TRUE)
+	(Sol_man TRUE)
+	(Sol_tarde TRUE)
 	(Superficie 200.0)
-	(Tipo piso)
+	(Terraza TRUE)
+	(Tipo familiar)
 	(vistas TRUE))
 
 ([vivienda_Class10001] of  Bus
@@ -65,23 +70,27 @@
 
 	(Altura_piso primero)
 	(Amueblada TRUE)
-	(Coord_viv [vivienda_Class0])
+	(Banyos 3)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class20021])
 	(Dormi_doble 3)
 	(Dormi_simple 2)
 	(Electrodomesticos TRUE)
-	(Garaje TRUE)
-	(Id "Segunda")
+	(Garaje FALSE)
+	(Id "Piso en plaza catalunya")
 	(Piscina TRUE)
-	(Precio_mensual 5000.0)
+	(Precio_mensual 1160.0)
+	(Reformada TRUE)
+	(Sol_man TRUE)
 	(Sol_tarde TRUE)
-	(Superficie 170.0)
+	(Superficie 110.0)
 	(Terraza TRUE)
-	(Tipo duplex))
+	(Tipo piso))
 
 ([vivienda_Class10012] of  Coordenadas
 
-	(X 143.0)
-	(Y 134.0))
+	(X 1500.0)
+	(Y 300.0))
 
 ([vivienda_Class10027] of  Vivienda
 
@@ -89,15 +98,19 @@
 	(Altura_piso atico)
 	(Amueblada TRUE)
 	(Balcon TRUE)
+	(Banyos 1)
 	(Coord_viv [vivienda_Class1])
 	(Dormi_doble 1)
 	(Dormi_simple 2)
+	(Electrodomesticos TRUE)
 	(Garaje TRUE)
-	(Id "Primera")
-	(Precio_mensual 1000.0)
+	(Id "Atico en marianao calle antoni gaudi")
+	(Piscina TRUE)
+	(Precio_mensual 670.0)
+	(Seguridad TRUE)
 	(Sol_man TRUE)
 	(Sol_tarde TRUE)
-	(Superficie 100.0)
+	(Superficie 80.0)
 	(Tipo piso))
 
 ([vivienda_Class10028] of  Bus
@@ -121,6 +134,27 @@
 	(X 200.0)
 	(Y 300.0))
 
+([vivienda_Class20000] of  Vivienda
+
+	(Altura_piso tercero)
+	(Amueblada TRUE)
+	(Banyos 2)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class30000])
+	(Dormi_doble 2)
+	(Dormi_simple 1)
+	(Fumadores TRUE)
+	(Id "Piso en centre casco antiguo")
+	(Mascotas TRUE)
+	(Precio_mensual 975.0)
+	(Seguridad TRUE)
+	(Sol_man TRUE)
+	(Sol_tarde TRUE)
+	(Superficie 100.0)
+	(Terraza TRUE)
+	(Tipo piso)
+	(vistas TRUE))
+
 ([vivienda_Class20001] of  Coordenadas
 
 	(X 500.0)
@@ -130,36 +164,39 @@
 
 	(Altura_piso planta_baja)
 	(Balcon TRUE)
+	(Banyos 2)
 	(Calefaccion TRUE)
 	(Coord_viv [vivienda_Class10012])
 	(Dormi_doble 3)
 	(Dormi_simple 3)
-	(Id "Cuarta")
+	(Id "Duplex en la calle montmany")
 	(Piscina TRUE)
-	(Precio_mensual 4000.0)
+	(Precio_mensual 2000.0)
 	(Sol_man TRUE)
-	(Superficie 300.0)
+	(Superficie 217.0)
 	(Terraza TRUE)
-	(Tipo familiar)
+	(Tipo duplex)
 	(vistas TRUE))
 
 ([vivienda_Class20003] of  Vivienda
 
 	(Altura_piso tercero)
 	(Amueblada TRUE)
-	(Balcon TRUE)
+	(Balcon FALSE)
+	(Banyos 2)
 	(Coord_viv [vivienda_Class20004])
 	(Dormi_doble 1)
 	(Dormi_simple 1)
 	(Electrodomesticos TRUE)
 	(Garaje FALSE)
-	(Id "Quinta")
+	(Id "Piso en avenida de la torre")
 	(Mascotas TRUE)
+	(Portero TRUE)
 	(Precio_mensual 1000.0)
-	(Sol_man FALSE)
+	(Sol_man TRUE)
 	(Sol_tarde FALSE)
-	(Superficie 100.0)
-	(Terraza FALSE)
+	(Superficie 110.0)
+	(Terraza TRUE)
 	(Tipo piso)
 	(vistas TRUE))
 
@@ -294,3 +331,385 @@
 
 	(X 50.0)
 	(Y 50.0))
+
+([vivienda_Class30000] of  Coordenadas
+
+	(X 300.0)
+	(Y 3000.0))
+
+([vivienda_Class30001] of  Coordenadas
+
+	(X 4000.0)
+	(Y 4000.0))
+
+([vivienda_Class30002] of  Vivienda
+
+	(Altura_piso cuarto)
+	(Amueblada TRUE)
+	(Balcon TRUE)
+	(Banyos 2)
+	(Coord_viv [vivienda_Class30003])
+	(Dormi_doble 2)
+	(Dormi_simple 5)
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Id "Piso en ramblas")
+	(Piscina TRUE)
+	(Precio_mensual 1500.0)
+	(Sol_tarde TRUE)
+	(Superficie 250.0)
+	(Tipo duplex)
+	(vistas TRUE))
+
+([vivienda_Class30003] of  Coordenadas
+
+	(X 2000.0)
+	(Y 3000.0))
+
+([vivienda_Class30004] of  Ocio+nocturno
+
+	(Coord_serv [vivienda_Class40003])
+	(Nombre_ser "Bar knaya"))
+
+([vivienda_Class30005] of  Coordenadas
+
+	(X 3000.0)
+	(Y 3500.0))
+
+([vivienda_Class30006] of  Bus
+
+	(Coord_serv [vivienda_Class40002])
+	(Nombre_ser "N13"))
+
+([vivienda_Class30007] of  Coordenadas
+
+	(X 4000.0)
+	(Y 4000.0))
+
+([vivienda_Class30008] of  Metro
+
+	(Coord_serv [vivienda_Class40001])
+	(Nombre_ser "S33"))
+
+([vivienda_Class30009] of  Coordenadas
+
+	(X 4000.0)
+	(Y 3500.0))
+
+([vivienda_Class30010] of  Zona+verde
+
+	(Coord_serv [vivienda_Class30011])
+	(Nombre_ser "Parque de la olla"))
+
+([vivienda_Class30011] of  Coordenadas
+
+	(X 1000.0)
+	(Y 500.0))
+
+([vivienda_Class40001] of  Coordenadas
+
+	(X 3000.0)
+	(Y 3000.0))
+
+([vivienda_Class40002] of  Coordenadas
+
+	(X 3000.0)
+	(Y 3000.0))
+
+([vivienda_Class40003] of  Coordenadas
+
+	(X 2500.0)
+	(Y 3000.0))
+
+([vivienda_Class40004] of  Parque+de+atracciones
+
+	(Coord_serv [vivienda_Class40005])
+	(Nombre_ser "IA te apeTC PROPar!"))
+
+([vivienda_Class40005] of  Coordenadas
+
+	(X 500.0)
+	(Y 500.0))
+
+([vivienda_Class40006] of  Iglesia
+
+	(Coord_serv [vivienda_Class20025])
+	(Nombre_ser "Iglesia de los iaios"))
+
+([vivienda_Class40007] of  Restaurante
+
+	(Coord_serv [vivienda_Class40008])
+	(Nombre_ser "City wok"))
+
+([vivienda_Class40008] of  Coordenadas
+
+	(X 3000.0)
+	(Y 150.0))
+
+([vivienda_Class40009] of  Restaurante
+
+	(Coord_serv [vivienda_Class40010])
+	(Nombre_ser "fogon"))
+
+([vivienda_Class40010] of  Coordenadas
+
+	(X 1500.0)
+	(Y 2000.0))
+
+([vivienda_Class40011] of  Ocio+nocturno
+
+	(Coord_serv [vivienda_Class40012])
+	(Nombre_ser "Masia"))
+
+([vivienda_Class40012] of  Coordenadas
+
+	(X 2200.0)
+	(Y 1690.0))
+
+([vivienda_Class40013] of  colegio
+
+	(Coord_serv [vivienda_Class40014])
+	(Nombre_ser "Fibernalia")
+	(Tipo_col Publico))
+
+([vivienda_Class40014] of  Coordenadas
+
+	(X 100.0)
+	(Y 200.0))
+
+([vivienda_Class40015] of  Tren
+
+	(Coord_serv [vivienda_Class40016])
+	(Nombre_ser "R23"))
+
+([vivienda_Class40016] of  Coordenadas
+
+	(X 300.0)
+	(Y 2345.0))
+
+([vivienda_Class40017] of  Vivienda
+
+	(Accesible TRUE)
+	(Aire TRUE)
+	(Altura_piso cuarto)
+	(Amueblada TRUE)
+	(Balcon TRUE)
+	(Banyos 2)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class40019])
+	(Dormi_doble 4)
+	(Dormi_simple 1)
+	(Fumadores TRUE)
+	(Id "Piso en aleix pares i valls")
+	(Piscina TRUE)
+	(Portero FALSE)
+	(Precio_mensual 1500.0)
+	(Reformada TRUE)
+	(Seguridad FALSE)
+	(Sol_man TRUE)
+	(Superficie 166.0)
+	(Terraza TRUE)
+	(Tipo duplex)
+	(vistas TRUE)
+	(WIFI TRUE))
+
+([vivienda_Class40018] of  Vivienda
+
+	(Altura_piso entresuelo)
+	(Amueblada TRUE)
+	(Balcon TRUE)
+	(Banyos 1)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class40020])
+	(Dormi_doble 1)
+	(Dormi_simple 1)
+	(Fumadores TRUE)
+	(Id "Piso en calle tres abril")
+	(Piscina TRUE)
+	(Portero TRUE)
+	(Precio_mensual 650.0)
+	(Reformada TRUE)
+	(Sol_man FALSE)
+	(Sol_tarde TRUE)
+	(Superficie 72.0)
+	(Tipo piso)
+	(TV TRUE)
+	(WIFI TRUE))
+
+([vivienda_Class40019] of  Coordenadas
+
+	(X 214.0)
+	(Y 1245.0))
+
+([vivienda_Class40020] of  Coordenadas
+
+	(X 1234.0)
+	(Y 700.0))
+
+([vivienda_Class40021] of  Vivienda
+
+	(Aire TRUE)
+	(Amueblada TRUE)
+	(Ascensor TRUE)
+	(Balcon TRUE)
+	(Banyos 3)
+	(Coord_viv [vivienda_Class40022])
+	(Dormi_doble 2)
+	(Dormi_simple 2)
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Id "Chalet en camps blancs")
+	(Piscina TRUE)
+	(Precio_mensual 2200.0)
+	(Seguridad TRUE)
+	(Superficie 322.0)
+	(Tipo familiar)
+	(vistas TRUE))
+
+([vivienda_Class40022] of  Coordenadas
+
+	(X 2303.0)
+	(Y 1109.0))
+
+([vivienda_Class40023] of  Ocio+nocturno
+
+	(Coord_serv [vivienda_Class40024])
+	(Nombre_ser "Ultima taberna"))
+
+([vivienda_Class40024] of  Coordenadas
+
+	(X 100.0)
+	(Y 0.0))
+
+([vivienda_Class40025] of  Restaurante
+
+	(Coord_serv [vivienda_Class40026])
+	(Nombre_ser "Yelping"))
+
+([vivienda_Class40026] of  Coordenadas
+
+	(X 3000.0)
+	(Y 120.0))
+
+([vivienda_Class40027] of  Zona+comercial
+
+	(Coord_serv [vivienda_Class40028])
+	(Nombre_ser "All your money are belong to us"))
+
+([vivienda_Class40028] of  Coordenadas
+
+	(X 2312.0)
+	(Y 150.0))
+
+([vivienda_Class40029] of  Zona+verde
+
+	(Coord_serv [vivienda_Class40030])
+	(Nombre_ser "parque lemmywinks"))
+
+([vivienda_Class40030] of  Coordenadas
+
+	(X 123.0)
+	(Y 531.0))
+
+([vivienda_Class40031] of  Vivienda
+
+	(Aire TRUE)
+	(Amueblada FALSE)
+	(Ascensor TRUE)
+	(Banyos 4)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class40032])
+	(Dormi_doble 1)
+	(Dormi_simple 5)
+	(Electrodomesticos TRUE)
+	(Garaje FALSE)
+	(Id "masi en calle alguer")
+	(Mascotas TRUE)
+	(Piscina FALSE)
+	(Portero TRUE)
+	(Precio_mensual 3500.0)
+	(Reformada TRUE)
+	(Seguridad TRUE)
+	(Sol_man TRUE)
+	(Superficie 471.0)
+	(Terraza TRUE)
+	(Tipo familiar)
+	(TV TRUE)
+	(vistas TRUE)
+	(WIFI TRUE))
+
+([vivienda_Class40032] of  Coordenadas
+
+	(X 299.0)
+	(Y 2000.0))
+
+([vivienda_Class40033] of  Vivienda
+
+	(Accesible TRUE)
+	(Altura_piso cuarto)
+	(Balcon TRUE)
+	(Banyos 1)
+	(Coord_viv [vivienda_Class40014])
+	(Dormi_doble 1)
+	(Dormi_simple 2)
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Id "Piso en  calle rosello")
+	(Mascotas TRUE)
+	(Portero TRUE)
+	(Precio_mensual 700.0)
+	(Reformada TRUE)
+	(Sol_man TRUE)
+	(Sol_tarde TRUE)
+	(Superficie 88.0)
+	(Terraza TRUE)
+	(Tipo piso)
+	(vistas TRUE))
+
+([vivienda_Class40034] of  Ocio+nocturno
+
+	(Coord_serv [vivienda_Class40035])
+	(Nombre_ser "Fun festa party"))
+
+([vivienda_Class40035] of  Coordenadas
+
+	(X 12.0)
+	(Y 888.0))
+
+([vivienda_Class40036] of  Iglesia
+
+	(Coord_serv [vivienda_Class40037])
+	(Nombre_ser "Satan did nothing wrong"))
+
+([vivienda_Class40037] of  Coordenadas
+
+	(X 666.0)
+	(Y 666.0))
+
+([vivienda_Class40038] of  Vivienda
+
+	(Altura_piso tercero)
+	(Amueblada TRUE)
+	(Ascensor TRUE)
+	(Balcon TRUE)
+	(Banyos 2)
+	(Calefaccion TRUE)
+	(Coord_viv [vivienda_Class40039])
+	(Dormi_doble 2)
+	(Dormi_simple 2)
+	(Electrodomesticos TRUE)
+	(Garaje TRUE)
+	(Id "piso jaue balmes")
+	(Portero TRUE)
+	(Precio_mensual 1100.0)
+	(Seguridad TRUE)
+	(Superficie 103.0)
+	(Tipo duplex)
+	(TV TRUE)
+	(vistas TRUE)
+	(WIFI TRUE))
+
+([vivienda_Class40039] of  Coordenadas
+
+	(X 1500.0)
+	(Y 1500.0))
