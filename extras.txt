@@ -28,8 +28,8 @@ Si un servicio que ha pedido a media esta en cerca ++;
 
 Falta evaluar Banyos, hacer pregunta igual que dormi simple y evaluar 
 Mirar lo de los servicios con _ o +
-Evaluar caracteristicas extra con los servicios añadidos
-Evaluar caracteristicas extra con los atributos añadidos
+Evaluar caracteristicas extra con los servicios aÃ±adidos
+Evaluar caracteristicas extra con los atributos aÃ±adidos
 Separar lo de restricciones/pref de servicios y caracteristicas
 Evaluar pref/restr de los servicios y caracteristicas
 ------------------------------------------------------------------------
@@ -39,19 +39,18 @@ Adecuado: Cumple requisitos
 Muy recomendable: Cumple requisitos + extras  //Se tienen que decir los extras que tiene
 ---------------------------------------------------------------------------------------------
 [hecho]
-Atributos que se pueden añadir a viviendas:
+Atributos que se pueden aÃ±adir a viviendas:
 Seguridad
 Reformada recientemente
 Ascensor
-Numero de baños
-Tamaños de dormitorios (lo dice en enunciado)
+Numero de baÃ±os
 TV
 WIFI
 Accesible
 Fumadores
 Portero
 
-Servicios que se pueden añadir:
+Servicios que se pueden aÃ±adir:
 Restaurante
 Iglesia
 Parque de atracciones
