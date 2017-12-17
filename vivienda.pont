@@ -1,5 +1,5 @@
-; Fri Dec 08 20:01:01 CET 2017
-;
+; Sun Dec 17 23:57:16 CET 2017
+; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
 
@@ -10,6 +10,10 @@
 	(single-slot Piscina
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Banyos
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Sol_man
@@ -45,9 +49,19 @@
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot WIFI
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Tipo
 		(type SYMBOL)
 		(allowed-values piso duplex familiar)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Seguridad
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot X
@@ -74,6 +88,11 @@
 		(create-accessor read-write))
 	(single-slot Dormi_simple
 		(type INTEGER)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Fumadores
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Garaje
@@ -119,12 +138,22 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot Portero
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(multislot servicio_cerca
 		(type INSTANCE)
 ;+		(allowed-classes Servicio)
 		(create-accessor read-write))
 	(single-slot CoordenadasY
 		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Ascensor
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Terraza
@@ -136,6 +165,16 @@
 		(type INSTANCE)
 ;+		(allowed-classes Servicio)
 		(create-accessor read-write))
+	(single-slot Reformada
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot TV
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot Coord_viv
 		(type INSTANCE)
 ;+		(allowed-classes Coordenadas)
@@ -146,6 +185,11 @@
 		(allowed-values Simple Doble)
 		(create-accessor read-write))
 	(single-slot Aire
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Accesible
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
@@ -174,9 +218,8 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Terraza
-		(type SYMBOL)
-		(allowed-values FALSE TRUE)
+	(single-slot Banyos
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Amueblada
@@ -184,17 +227,8 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(multislot servicio_media
-		(type INSTANCE)
-;+		(allowed-classes Servicio)
-		(create-accessor read-write))
 	(single-slot Dormi_doble
 		(type INTEGER)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot Tipo
-		(type SYMBOL)
-		(allowed-values piso duplex familiar)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot vistas
@@ -207,9 +241,9 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Coord_viv
-		(type INSTANCE)
-;+		(allowed-classes Coordenadas)
+	(single-slot Portero
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Precio_mensual
@@ -220,14 +254,62 @@
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Aire
+	(multislot servicio_cerca
+		(type INSTANCE)
+;+		(allowed-classes Servicio)
+		(create-accessor read-write))
+	(single-slot Id
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Ascensor
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(multislot servicio_cerca
+	(single-slot Terraza
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot WIFI
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(multislot servicio_media
 		(type INSTANCE)
 ;+		(allowed-classes Servicio)
+		(create-accessor read-write))
+	(single-slot Tipo
+		(type SYMBOL)
+		(allowed-values piso duplex familiar)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Reformada
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot TV
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Seguridad
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Coord_viv
+		(type INSTANCE)
+;+		(allowed-classes Coordenadas)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Aire
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Electrodomesticos
 		(type SYMBOL)
@@ -235,6 +317,11 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Balcon
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot Accesible
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
@@ -248,13 +335,14 @@
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Garaje
+	(single-slot Fumadores
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot Id
-		(type STRING)
+	(single-slot Garaje
+		(type SYMBOL)
+		(allowed-values FALSE TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot Mascotas
@@ -297,6 +385,10 @@
 	(is-a Transporte_publico)
 	(role concrete))
 
+(defclass Tren
+	(is-a Transporte_publico)
+	(role concrete))
+
 (defclass colegio
 	(is-a Servicio)
 	(role concrete)
@@ -306,33 +398,45 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
-	(defclass Centro+de+salud
-		(is-a Servicio)
-		(role concrete))
+(defclass Centro+de+salud
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Estadio+de+deportes
-		(is-a Servicio)
-		(role concrete))
+(defclass Estadio+de+deportes
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Hipermercado
-		(is-a Servicio)
-		(role concrete))
+(defclass Hipermercado
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Ocio+nocturno
-		(is-a Servicio)
-		(role concrete))
+(defclass Ocio+nocturno
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Supermercado
-		(is-a Servicio)
-		(role concrete))
+(defclass Supermercado
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Zona+comercial
-		(is-a Servicio)
-		(role concrete))
+(defclass Zona+comercial
+	(is-a Servicio)
+	(role concrete))
 
-	(defclass Zona+verde
-		(is-a Servicio)
-		(role concrete))
+(defclass Zona+verde
+	(is-a Servicio)
+	(role concrete))
+
+(defclass Parque+de+atracciones
+	(is-a Servicio)
+	(role concrete))
+
+(defclass Restaurante
+	(is-a Servicio)
+	(role concrete))
+
+(defclass Iglesia
+	(is-a Servicio)
+	(role concrete))
 
 (defclass Coordenadas
 	(is-a USER)

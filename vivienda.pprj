@@ -1,4 +1,4 @@
-; Thu Dec 14 19:38:59 CET 2017
+; Sun Dec 17 23:57:17 CET 2017
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -20,12 +20,13 @@
 ([BROWSER_SLOT_NAMES] of  Property_List
 
 	(properties
-		[vivienda_ProjectKB_Class10156]
-		[vivienda_ProjectKB_Class10157]
-		[vivienda_ProjectKB_Class10158]
-		[vivienda_ProjectKB_Class10159]
-		[vivienda_ProjectKB_Class10160]
-		[vivienda_ProjectKB_Class10161]))
+		[vivienda_ProjectKB_Class10164]
+		[vivienda_ProjectKB_Class10165]
+		[vivienda_ProjectKB_Class10166]
+		[vivienda_ProjectKB_Class10167]
+		[vivienda_ProjectKB_Class10168]
+		[vivienda_ProjectKB_Class10169]
+		[vivienda_ProjectKB_Class10170]))
 
 ([CLSES_TAB] of  Widget
 
@@ -69,7 +70,7 @@
 	(is_hidden FALSE)
 	(widget_class_name "edu.stanford.smi.protege.widget.InstancesTab"))
 
-([KB_397396_Class3] of  Map
+([KB_622925_Class3] of  Map
 )
 
 ([KB_722638_Class0] of  String
@@ -80,9 +81,9 @@
 ([KB_722638_Class1] of  Map
 
 	(entries
-		[vivienda_ProjectKB_Class10162]
-		[vivienda_ProjectKB_Class10163]
-		[vivienda_ProjectKB_Class10164]))
+		[vivienda_ProjectKB_Class10171]
+		[vivienda_ProjectKB_Class10172]
+		[vivienda_ProjectKB_Class10173]))
 
 ([KB_722638_Class10] of  Property_List
 )
@@ -1007,51 +1008,56 @@
 	(name "vertical_stretcher")
 	(string_value ":DIRECT-TEMPLATE-SLOTS"))
 
-([vivienda_ProjectKB_Class10156] of  String
+([vivienda_ProjectKB_Class10164] of  String
 
 	(name ":INSTANCE-ANNOTATION")
 	(string_value "%3AANNOTATION-TEXT"))
 
-([vivienda_ProjectKB_Class10157] of  String
+([vivienda_ProjectKB_Class10165] of  String
 
 	(name ":META-CLASS")
 	(string_value "%3ANAME"))
 
-([vivienda_ProjectKB_Class10158] of  String
+([vivienda_ProjectKB_Class10166] of  String
+
+	(name "Servicio")
+	(string_value "Nombre_ser"))
+
+([vivienda_ProjectKB_Class10167] of  String
 
 	(name "Coordenadas")
 	(string_value "X{+}Y"))
 
-([vivienda_ProjectKB_Class10159] of  String
-
-	(name "Bus")
-	(string_value "Nombre_ser"))
-
-([vivienda_ProjectKB_Class10160] of  String
-
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
-
-([vivienda_ProjectKB_Class10161] of  String
+([vivienda_ProjectKB_Class10168] of  String
 
 	(name "Vivienda")
 	(string_value "Id"))
 
-([vivienda_ProjectKB_Class10162] of  Map_Entry
+([vivienda_ProjectKB_Class10169] of  String
+
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
+
+([vivienda_ProjectKB_Class10170] of  String
+
+	(name "Bus")
+	(string_value "Nombre_ser"))
+
+([vivienda_ProjectKB_Class10171] of  Map_Entry
 
 	(key "suppress_instance_counting")
 	(key_class "java.lang.String")
 	(value "false")
 	(value_class "java.lang.String"))
 
-([vivienda_ProjectKB_Class10163] of  Map_Entry
+([vivienda_ProjectKB_Class10172] of  Map_Entry
 
 	(key "change_tracking_active")
 	(key_class "java.lang.String")
 	(value "false")
 	(value_class "java.lang.String"))
 
-([vivienda_ProjectKB_Class10164] of  Map_Entry
+([vivienda_ProjectKB_Class10173] of  Map_Entry
 
 	(key "add_name_on_instance_form")
 	(key_class "java.lang.String")
