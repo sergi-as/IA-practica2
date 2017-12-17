@@ -1121,7 +1121,7 @@ else (format t "Sin sol por la tarde %n"))
  	(retract ?f)
  )
 
-(defrule procesado::puntua_lavabos "Porque la higiene personal es importante y hay que valorar si 3 millones de sitios para hacer caca es algo importante"
+(defrule procesado::puntua_lavabos "puntua si la vivienda tiene suficientes banos"
 	?viv <- (object (is-a Recomendacion) (contenido ?c) (puntuacion ?p) (justificaciones $?j) (fallos ?fe))
 	(preferencias_usuario (num_banyos ?num))
 	?f <- (puntua_banyo ?id)
@@ -1130,12 +1130,13 @@ else (format t "Sin sol por la tarde %n"))
 	(bind ?puntuacion ?p)
 	(bind $?justificacions $?j)
 	(bind ?fallos ?fe)
-	(if (eq ?num (send ?c get-Banyos))
+	(if (<= ?num (send ?c get-Banyos))
 	then
 		(bind ?puntuacion (+ ?puntuacion 5))
-		(bind $?justificacions $?justificacions "+ Puedes cagar sin darte prisa")
+		(bind $?justificacions $?justificacions "+ La vivienda tiene suficientes banyos")
 	else
-		(bind $?justificacions $?justificacions "+ Vas a tener que correr para hacer cacota agusto")
+		(bind $?justificacions $?justificacions "- Le faltan banyos")
+		(bind ?puntuacion (- ?puntuacion 5))
 		(bind ?fallos (+ ?fallos 1))
 	)
 	(send ?c put-puntuacion ?puntuacion)
@@ -1212,7 +1213,7 @@ else (format t "Sin sol por la tarde %n"))
 		(while (<= ?i (length$ $?lista )) do
 			(bind ?rec (nth$ ?i $?lista ))
 
-			(if (<= 150 (send ?rec get-puntuacion)) then
+			(if (<= 120 (send ?rec get-puntuacion)) then
 				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
 
 				else
