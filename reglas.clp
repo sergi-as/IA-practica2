@@ -311,10 +311,10 @@ else (format t "Sin sol por la tarde %n"))
 
 		;; para debugar la parte de proceso
 
-		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (coorX 1200) (coorY 400)))
+		;(assert (Usuario (nombre "hola") (edad 20) (tipo grupo) (tam_familia_grupo 2) (coorX 1200) (coorY 400) (posee_vehiculo FALSE)))
 		;(assert (Usuario (nombre "hola") (tipo pareja) (tam_familia_grupo 2) (posee_vehiculo FALSE) ))
-		;;(focus recopilacion-preferencias)
-		;(assert (preferencias_usuario (precio_maximo 10000) (num_dormitorios_dobles 1) (precio_estricto TRUE) (distancia_servicio Bus colegio) ) )
+		;(focus recopilacion-preferencias)
+		;(assert (preferencias_usuario (precio_maximo 900) (num_dormitorios_dobles 0) (precio_estricto TRUE) (num_banyos 0) (precio_minimo 1) (distancia_servicio) (preferencias_vivienda Amueblado Electrodomesticos) ) )
 		;(focus procesado)
 )
 ;; Reglas set distancia, necesito una por cada tipo de servicio
@@ -361,9 +361,6 @@ else (format t "Sin sol por la tarde %n"))
 	(modify ?g (edad ?edad))
 )
 
-;;;;;;;;;;;;;;;;;;;;;;
-;TODO preguntar si la familia espera hijos
-;;;;;;;;;;;;;;;;;;;;;;
 (defrule recopilacion-usuario::establecer-tipo "establece la tipologia de la familia"
 	?g <-(Usuario (tipo ?tipo))
 	(test (eq ?tipo desconocido))
@@ -554,9 +551,11 @@ else (format t "Sin sol por la tarde %n"))
 	)
 
 	(defrule procesado::unifica_filtros "unifica las variables de filtro para simplificar el codigo posterior"
+
 		(declare (salience 5))
-		(not (or (fil_precio ?) (fil_bajo ?) (fil_cap ?)))
+		(not (or (fil_precio ) (fil_bajo ) (fil_cap )))
 		=>
+				(printout t "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" crlf)
 		(assert (fin_fil))
 
 	)
@@ -641,10 +640,11 @@ else (format t "Sin sol por la tarde %n"))
 		(if (> ?precio ?pm) then
 			(if (eq ?pe TRUE) then
 				(send ?viv delete)
-				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+				(printout t "eliminada vivienda,demasiado cara: "(send ?c get-Id) crlf)
 					else (if (<= ?precio (* 1.2 ?pm)) then
 						(assert (precio_puntuacion (send ?c get-Id) ))
 						else
+						  (printout t "eliminada vivienda,demasiado cara: "(send ?c get-Id) crlf)
 							(send ?viv delete)
 					)
 			)
@@ -661,7 +661,7 @@ else (format t "Sin sol por la tarde %n"))
 			(bind ?precio (send ?c get-Precio_mensual ))
 			(if (< ?precio ?pm) then
 				(send ?viv delete)
-				(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+				(printout t "eliminada vivienda,demasiado barata: "(send ?c get-Id) crlf)
 			)
 			(retract ?f)
 		)
@@ -677,7 +677,7 @@ else (format t "Sin sol por la tarde %n"))
 				(bind ?capacidad (+ (send ?c get-Dormi_simple ) (* 2 (send ?c get-Dormi_doble ) ) ) )
 				(if (or (< ?capacidad ?t) (< (send ?c get-Dormi_doble ) ?dd )) then
 					(send ?viv delete)
-					(printout t "eliminada vivienda: "(send ?c get-Id) crlf)
+					(printout t "eliminada vivienda,falta capacidad: "(send ?c get-Id) crlf)
 					else (if (> ?capacidad ?t) then
 								(assert (pdorm_extra (send ?c get-Id) ))
 							 )
@@ -917,7 +917,7 @@ else (format t "Sin sol por la tarde %n"))
 		)
 		(progn$ (?u (send ?c get-servicio_media)) (bind ?densidad (+ ?densidad 1)))
 		;numero arbitrario para la densidad
-		(if (>= ?densidad 20) then
+		(if (> ?densidad 20) then
 			(bind ?pextra (+ ?pextra 2))
 			(bind $?ljust $?ljust "+ Bastantes servicios a menos de 1km")
 		)
@@ -1115,9 +1115,9 @@ else (format t "Sin sol por la tarde %n"))
 												(bind ?fallos (+ ?fallos 1))
 											)
  	))))))))))))))))))))
- 	(send ?c put-puntuacion ?pextra)
- 	(send ?c put-justificaciones $?justificacions)
-	(send ?c put-fallos ?fallos)
+ 	(send ?viv put-puntuacion ?pextra)
+ 	(send ?viv put-justificaciones $?justificacions)
+	(send ?viv put-fallos ?fallos)
  	(retract ?f)
  )
 
@@ -1139,9 +1139,9 @@ else (format t "Sin sol por la tarde %n"))
 		(bind ?puntuacion (- ?puntuacion 5))
 		(bind ?fallos (+ ?fallos 1))
 	)
-	(send ?c put-puntuacion ?puntuacion)
-	(send ?c put-justificaciones $?justificacions)
-	(send ?c put-fallos ?fallos)
+	(send ?viv put-puntuacion ?puntuacion)
+	(send ?viv put-justificaciones $?justificacions)
+	(send ?viv put-fallos ?fallos)
 	(retract ?f)
 )
 
