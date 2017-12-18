@@ -619,7 +619,7 @@ else (format t "Sin sol por la tarde %n"))
 ;;;Regla que elimina los pisos con precio mayor al precio maximo introducido por el usuario
 ;;; si el precio no es estricto se da un margen de superacion
 (defrule procesado::filtra_precio "Se eliminan los pisos con precio mayor al permitido"
-	;;aqui supongo que precio no fijo es +50%
+	;;aqui supongo que precio no fijo es +20%
 	(preferencias_usuario (precio_maximo ?pm) (precio_estricto ?pe) )
 	?viv<-(object (is-a Recomendacion) (contenido ?c)(puntuacion ?p) (justificaciones $?j))
 	?f<-(fil_precio ?id)
@@ -1247,7 +1247,7 @@ else (format t "Sin sol por la tarde %n"))
 		(while (<= ?i (length$ $?lista )) do
 			(bind ?rec (nth$ ?i $?lista ))
 
-			(if (<= 120 (send ?rec get-puntuacion)) then
+			(if (and (<= 120 (send ?rec get-puntuacion) ) (>=  3 (send ?rec get-fallos))) then
 				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
 
 				else
@@ -1256,6 +1256,8 @@ else (format t "Sin sol por la tarde %n"))
 						else
 							(if (>=  3 (send ?rec get-fallos) ) then
 								(bind $?poco (insert$ $?poco (+ (length$ $?poco) 1) ?rec))
+								else
+									(printout t "Vivienda eliminada por tener demasiados fallos" crlf)
 								)
 					)
 			)
