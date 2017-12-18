@@ -1213,15 +1213,17 @@ else (format t "Sin sol por la tarde %n"))
 		(while (<= ?i (length$ $?lista )) do
 			(bind ?rec (nth$ ?i $?lista ))
 
-			(if (<= 120 (send ?rec get-puntuacion)) then
+			(if (< 120 (send ?rec get-puntuacion)) then
 				(bind $?mucho (insert$ $?mucho (+ (length$ $?mucho) 1) ?rec))
 
 				else
 					(if (eq 0 (send ?rec get-fallos))then
 						(bind $?norm (insert$ $?norm (+ (length$ $?norm) 1) ?rec))
 						else
-							(if (>=  3 (send ?rec get-fallos) ) then
+							(if (>=  10 (send ?rec get-fallos) ) then
 								(bind $?poco (insert$ $?poco (+ (length$ $?poco) 1) ?rec))
+									else
+										(printout "Eliminada vivienda por no ser adecuada")
 								)
 					)
 			)
