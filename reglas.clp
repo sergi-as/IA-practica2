@@ -622,7 +622,7 @@ else (format t "Sin sol por la tarde %n"))
  	)
  )
 
-(defrule procesado::fact_puntuacion_banyo "Las caconas mas agusto, es posible"
+(defrule procesado::fact_puntuacion_banyo "Crea los facts para el numero de banyos"
 	(declare (salience 10))
 	(fin_fil)
 	(object (is-a Recomendacion) (contenido ?c))
